@@ -1,21 +1,21 @@
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Flaggen-Ratespiel</title>
 
-  <!-- PWA Meta Tags -->
+  <!-- PWA Meta Tags & Manifest Link -->
   <meta name="theme-color" content="#2060e0"/>
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png"> <!-- Beispiel iOS Icon -->
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png"> <!-- Icon für iOS Homescreen -->
+  <link rel="manifest" href="manifest.json"> <!-- Link zur Manifest-Datei -->
 
-  <!-- Link zur Manifest-Datei (NEU) -->
-  <link rel="manifest" href="manifest.json">
-
+  <!-- Stylesheet & Fonts -->
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Start Screen Overlay -->
+  <!-- Start Screen Overlay (initial sichtbar) -->
   <div id="start-screen">
     <div class="start-content">
       <h1 id="start-title">Flaggen-Ratespiel</h1>
@@ -62,6 +62,7 @@
     </div>
   </div>
 
+  <!-- Haupt-Spielbereich (initial versteckt) -->
   <main style="display:none;">
     <h1 data-i18n="title">Flaggen-Ratespiel</h1>
     <div id="streak-container">
@@ -109,7 +110,7 @@
     <div id="flag-list-modal" class="flag-list-modal" style="display:none;">
       <div class="flag-list-modal-backdrop" id="modal-backdrop"></div>
       <div class="flag-list-modal-content">
-        <button id="closeFlagList" class="close-flag-list">&times;</button>
+        <button id="closeFlagList" class="close-flag-list">×</button>
         <h3 data-i18n="flagListTitle">Alle Flaggen</h3>
         <div id="flagListContent">
           <!-- Dynamisch generiert -->
@@ -117,11 +118,16 @@
       </div>
     </div>
   </main>
+
+  <!-- Haupt-Skript (Modul) -->
   <script type="module" src="script.js"></script>
+
+  <!-- Service Worker Registrierung (für PWA) -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js') // Pfad zur Service Worker Datei
+        // Wichtig: Der Pfad '/service-worker.js' bezieht sich auf das Root-Verzeichnis der Website
+        navigator.serviceWorker.register('/service-worker.js')
           .then(registration => {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
           })
@@ -133,5 +139,6 @@
       console.log('Service workers are not supported.');
     }
   </script>
+
 </body>
 </html>
