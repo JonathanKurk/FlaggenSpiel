@@ -1,0 +1,137 @@
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flaggen-Ratespiel</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#2060e0"/>
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png"> <!-- Beispiel iOS Icon -->
+
+  <!-- Link zur Manifest-Datei (NEU) -->
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Start Screen Overlay -->
+  <div id="start-screen">
+    <div class="start-content">
+      <h1 id="start-title">Flaggen-Ratespiel</h1>
+      <div class="start-step" id="step-language">
+        <h2>Sprache wählen</h2>
+        <div class="lang-select-buttons">
+          <button class="lang-select-btn" data-lang="de">Deutsch</button>
+          <button class="lang-select-btn" data-lang="en">English</button>
+        </div>
+      </div>
+      <div class="start-step" id="step-mode" style="display:none;">
+        <h2 id="choose-mode-label">Modus wählen</h2>
+        <div class="mode-select-buttons">
+          <button class="mode-select-btn" data-mode="all">
+            <span class="continent-abbr">ALL</span>
+            🌍 <span data-i18n="modeAll">Alle Länder</span>
+          </button>
+          <button class="mode-select-btn" data-mode="Europe">
+            <span class="continent-abbr">EU</span>
+            🇪🇺 <span data-i18n="modeEurope">Nur Europa</span>
+          </button>
+          <button class="mode-select-btn" data-mode="Asia">
+            <span class="continent-abbr">AS</span>
+            🌏 <span data-i18n="modeAsia">Nur Asien</span>
+          </button>
+          <button class="mode-select-btn" data-mode="Africa">
+            <span class="continent-abbr">AF</span>
+            🌍 <span data-i18n="modeAfrica">Nur Afrika</span>
+          </button>
+          <button class="mode-select-btn" data-mode="South America">
+            <span class="continent-abbr">SA</span>
+            🌎 <span data-i18n="modeSouthAmerica">Nur Südamerika</span>
+          </button>
+          <button class="mode-select-btn" data-mode="North America">
+            <span class="continent-abbr">NA</span>
+            🌎 <span data-i18n="modeNorthAmerica">Nur Nordamerika</span>
+          </button>
+          <button class="mode-select-btn" data-mode="Oceania">
+            <span class="continent-abbr">OC</span>
+            🌊 <span data-i18n="modeOceania">Nur Australien & Ozeanien</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main style="display:none;">
+    <h1 data-i18n="title">Flaggen-Ratespiel</h1>
+    <div id="streak-container">
+      <span data-i18n="winStreak">Win Streak:</span>
+      <span id="winningStreak">0</span>
+    </div>
+    <div id="controls">
+      <select id="languageSelect">
+        <option value="de">Deutsch</option>
+        <option value="en">English</option>
+      </select>
+      <label><input type="checkbox" id="grayscaleToggle"><span data-i18n="grayscaleLabel">Flaggen in Schwarz-Weiß</span></label>
+      <label><input type="checkbox" id="glitchToggle"><span data-i18n="glitchLabel">Flaggen glitched</span></label>
+      <label><input type="checkbox" id="pixelateToggle"><span data-i18n="pixelateLabel">Flagge verschwommen</span></label>
+      <label><input type="checkbox" id="invertToggle"><span data-i18n="invertLabel">Farben invertieren</span></label>
+      <label for="timeSelect" id="timer-label">
+        <span data-i18n="timeLabel">Anzeigedauer:</span>
+        <select id="timeSelect">
+          <option value="0.1">0,1s</option>
+          <option value="1">1s</option>
+          <option value="2">2s</option>
+          <option value="3">3s</option>
+          <option value="5">5s</option>
+          <option value="10">10s</option>
+          <option value="Infinity" selected>∞</option>
+        </select>
+      </label>
+      <button id="backToStartBtn" style="margin-left:1.2rem;" type="button">
+        <span data-i18n="backToStartBtn">Zurück</span>
+      </button>
+    </div>
+    <div id="quiz">
+      <div id="flag-container">
+        <img id="flag" src="" alt="">
+        <div class="flag-blackout" id="flag-blackout"></div>
+      </div>
+      <input type="text" id="guessInput" placeholder="Deutscher Ländername">
+      <button id="submitBtn"><span data-i18n="checkBtn">Überprüfen</span></button>
+      <button id="nextBtn"><span data-i18n="nextBtn">Nächste Flagge</span></button>
+      <div id="result"></div>
+    </div>
+    <div style="margin: 1rem 0;">
+      <button id="showFlagListBtn"><span data-i18n="flagListBtn">Flaggenliste anzeigen</span></button>
+    </div>
+    <div id="flag-list-modal" class="flag-list-modal" style="display:none;">
+      <div class="flag-list-modal-backdrop" id="modal-backdrop"></div>
+      <div class="flag-list-modal-content">
+        <button id="closeFlagList" class="close-flag-list">&times;</button>
+        <h3 data-i18n="flagListTitle">Alle Flaggen</h3>
+        <div id="flagListContent">
+          <!-- Dynamisch generiert -->
+        </div>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="script.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js') // Pfad zur Service Worker Datei
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    } else {
+      console.log('Service workers are not supported.');
+    }
+  </script>
+</body>
+</html>
