@@ -2,7 +2,9 @@
 
 import { i18n } from '../utils/i18n.js';
 import {
-  countriesForGame, // Unsere lokale Datenquelle
+  // countries, // Wird nicht mehr direkt hier gebraucht
+  countriesForGame, // Das ist jetzt unsere lokale Datenquelle!
+  // setCountriesForGame, // Wird in startScreen.js gesetzt
   setCurrentCountry,
   language,
   setLanguage,
@@ -14,9 +16,9 @@ import { showStartScreen } from './startScreen.js';
 
 let flagHideTimer = null;
 let blackoutActive = false;
-let flagRevealQueued = false;
+let flagRevealQueued = false; // Verhindert Race Conditions beim Laden
 
-// Setzt alle Event Listener für die UI-Elemente
+// Funktion zum Setzen von UI-Listenern (unverändert aus Original)
 export function setupUIListeners() {
   document.getElementById('submitBtn').addEventListener('click', checkGuess);
   document.getElementById('nextBtn').addEventListener('click', loadNewFlag);
@@ -28,6 +30,7 @@ export function setupUIListeners() {
     setLanguage(e.target.value);
     updateUI();
     if (document.getElementById('flag-list-modal').style.display === 'block') {
+      // Dynamischer Import für Flaggenliste, falls geöffnet
       import('./flagListModal.js').then(mod => {
         mod.fillFlagListContent();
         setTimeout(mod.initFlagListHover, 0);
@@ -35,7 +38,8 @@ export function setupUIListeners() {
     }
   });
   document.getElementById('timeSelect').addEventListener('change', () => {
-    // Wendet den Timer auf die aktuell angezeigte Flagge an, wenn das Raten läuft
+    // Bei Zeitänderung: Aktuelle Flagge neu laden, um Timer anzuwenden
+    // Nur sinnvoll, wenn eine Flagge gerade angezeigt wird
     if (window.currentCountry && !document.getElementById('submitBtn').disabled) {
        applyTimerToCurrentFlag();
     }
@@ -62,14 +66,14 @@ export function setupUIListeners() {
   document.getElementById('winningStreak').textContent = currentStreak;
 }
 
-// Initialisiert das Spiel nach Auswahl des Modus
+// Funktion zum Initialisieren des Spiels nach Moduswahl (unverändert aus Original)
 export function setupGameForSelectedOptions() {
   document.getElementById('languageSelect').value = language;
   updateUI();
-  loadNewFlag(); // Lädt die erste Flagge
+  loadNewFlag(); // Erste Flagge laden
 }
 
-// Aktualisiert alle Texte der Benutzeroberfläche basierend auf der Sprache
+// Funktion zum Aktualisieren der UI-Texte (unverändert aus Original)
 export function updateUI() {
   document.documentElement.lang = language;
   document.querySelector('h1[data-i18n="title"]').textContent = i18n[language].title;
@@ -82,25 +86,26 @@ export function updateUI() {
   document.querySelector('[data-i18n="nextBtn"]').textContent = i18n[language].nextBtn;
   document.querySelector('[data-i18n="flagListBtn"]').textContent = i18n[language].flagListBtn;
   document.querySelector('[data-i18n="timeLabel"]').textContent = i18n[language].timeLabel;
+  // Titel im Modal nur aktualisieren, wenn es existiert/geöffnet wird
   const flagListTitle = document.querySelector('[data-i18n="flagListTitle"]');
-  if (flagListTitle) flagListTitle.textContent = i18n[language].flagListTitle;
+   if(flagListTitle) flagListTitle.textContent = i18n[language].flagListTitle;
   document.querySelector('[data-i18n="winStreak"]').textContent = i18n[language].winStreak;
   document.querySelector('[data-i18n="backToStartBtn"]').textContent = i18n[language].backToStartBtn;
-  // Aktualisiert den Alt-Text, wenn eine Flagge angezeigt wird
+  // Alt-Text der Flagge aktualisieren, wenn eine angezeigt wird
   if (window.currentCountry) {
     const name = language === 'de'
-      ? (window.currentCountry.translations?.deu?.common || window.currentCountry.name?.common)
-      : (window.currentCountry.name?.common || window.currentCountry.translations?.deu?.common);
-    document.getElementById('flag').alt = i18n[language].flagAlt(name || 'Unbekannt');
+      ? window.currentCountry.translations.deu.common
+      : window.currentCountry.name.common;
+    document.getElementById('flag').alt = i18n[language].flagAlt(name);
   }
 }
 
-// Lädt eine neue Flagge und setzt die UI zurück
+// Funktion zum Laden einer neuen Flagge (ANGEPASST für Offline-Nutzung)
 export function loadNewFlag() {
-  console.log("loadNewFlag: Using countriesForGame array with length:", countriesForGame.length);
+  console.log("loadNewFlag called. Using countriesForGame with length:", countriesForGame.length);
   blackoutActive = false;
   flagRevealQueued = false;
-  clearTimeout(flagHideTimer);
+  clearTimeout(flagHideTimer); // Alten Timer löschen
 
   const flagContainer = document.getElementById('flag-container');
   const flagBlackout = document.getElementById('flag-blackout');
@@ -110,155 +115,140 @@ export function loadNewFlag() {
   const submitBtn = document.getElementById('submitBtn');
   const nextBtn = document.getElementById('nextBtn');
 
-  // UI-Reset
+  // UI-Reset für neue Runde
   flagContainer.classList.remove('blackout');
   flagBlackout.style.display = 'none';
-  flagImg.style.visibility = 'hidden';
-  flagImg.removeAttribute('src');
+  flagImg.style.visibility = 'hidden'; // Erstmal verstecken
+  flagImg.removeAttribute('src'); // Quelle entfernen, um Neuladen zu erzwingen
   resultEl.textContent = '';
   guessInput.value = '';
-  guessInput.disabled = true; // Warten bis Flagge geladen
+  guessInput.disabled = true; // Deaktivieren, bis Flagge geladen ist
   submitBtn.disabled = true;
-  nextBtn.disabled = true;
-  applyEffects();
+  nextBtn.disabled = true; // Erst nach Laden/Timeout aktivieren
+  applyEffects(); // Visuelle Effekte anwenden
 
-  // Land aus lokalem Array auswählen
+  // === Kernänderung: Daten aus lokalem Array holen ===
   if (!countriesForGame || countriesForGame.length === 0) {
-    console.error("loadNewFlag: No countries in local array!");
-    resultEl.textContent = "Fehler: Keine Länderdaten verfügbar.";
+    console.error("FATAL: No countries available in local countriesForGame array.");
+    resultEl.textContent = "Fehler: Keine Länderdaten lokal verfügbar. Bitte online starten.";
     resultEl.style.color = 'red';
+    // Kein Spiel möglich ohne Daten
     return;
   }
+
   const idx = Math.floor(Math.random() * countriesForGame.length);
   const country = countriesForGame[idx];
-  setCurrentCountry(country);
-  window.currentCountry = country; // Alias beibehalten
+  setCurrentCountry(country); // Wichtig für checkGuess
+  window.currentCountry = country; // Alias behalten
 
-  // Namen für Alt-Text ermitteln (mit Fallback)
-  const nameForAlt = language === 'de'
-      ? (country.translations?.deu?.common || country.name?.common)
-      : (country.name?.common || country.translations?.deu?.common);
-  flagImg.alt = i18n[language].flagAlt(nameForAlt || 'Unbekannt');
-  console.log("loadNewFlag: Selected country:", nameForAlt, country.flags?.svg);
+  // Land und Flagge setzen (Alt-Text)
+  const name = language === 'de'
+    ? country.translations.deu.common
+    : country.name.common;
+  flagImg.alt = i18n[language].flagAlt(name);
+  console.log("Selected country:", name, country.flags.svg); // Debugging
 
-  // Flaggenbild laden (via Service Worker für Offline-Cache)
-  flagRevealQueued = true;
+  // === Flaggenbild laden (Service Worker wird das Caching übernehmen) ===
+  flagRevealQueued = true; // Markieren, dass dieses Laden gültig ist
 
   flagImg.onload = function () {
-    console.log("loadNewFlag: Flag loaded:", flagImg.src);
+    console.log("Flag loaded:", flagImg.src);
     if (flagRevealQueued) {
-      flagImg.style.visibility = 'visible';
-      guessInput.disabled = false;
-      submitBtn.disabled = false;
-      applyTimerToCurrentFlag(); // Timer starten/anwenden
-      flagRevealQueued = false;
-      // KEIN automatischer Fokus mehr hier:
-      // guessInput.focus();
+      flagImg.style.visibility = 'visible'; // Anzeigen, wenn geladen
+      guessInput.disabled = false; // Input freigeben
+      submitBtn.disabled = false; // Prüfen-Button freigeben
+      applyTimerToCurrentFlag(); // Timer starten (oder auch nicht bei Infinity)
+      flagRevealQueued = false; // Laden abgeschlossen
+      guessInput.focus();
     }
-    flagImg.onload = null; // Listener entfernen
+    flagImg.onload = null; // Event Listener entfernen
   };
 
   flagImg.onerror = function() {
-      console.error("loadNewFlag: Error loading flag image:", country.flags?.svg);
-      resultEl.textContent = "Fehler beim Laden der Flagge.";
+      console.error("Error loading flag image:", country.flags.svg);
+      resultEl.textContent = "Fehler beim Laden der Flagge. Überspringe.";
       resultEl.style.color = 'orange';
       flagRevealQueued = false;
       flagImg.onload = null;
       flagImg.onerror = null;
-      // Nächste Flagge versuchen, anstatt zu blockieren
-      setTimeout(loadNewFlag, 1000); // Kurze Pause
+      // Nächste Flagge versuchen zu laden, auch wenn eine fehlschlägt
+      setTimeout(loadNewFlag, 1500);
   }
 
-  // URL setzen (löst onload oder onerror aus)
+  // Quelle setzen -> löst Laden aus (wird von SW abgefangen)
   if (country.flags && country.flags.svg) {
      flagImg.src = country.flags.svg;
   } else {
-     console.error("loadNewFlag: Missing flag SVG URL for country:", nameForAlt);
-     resultEl.textContent = "Fehler: Flaggen-URL fehlt.";
+     console.error("Missing flag SVG URL for country:", country.name.common);
+     resultEl.textContent = "Fehler: Flaggen-URL fehlt. Überspringe.";
      resultEl.style.color = 'red';
-     setTimeout(loadNewFlag, 1000); // Nächste Flagge versuchen
+     setTimeout(loadNewFlag, 1500); // Nächste Flagge versuchen
   }
 }
 
-// Wendet den eingestellten Timer auf die aktuell sichtbare Flagge an
+// Hilfsfunktion, um den Timer anzuwenden/neu zu starten
 function applyTimerToCurrentFlag() {
-    clearTimeout(flagHideTimer);
+    clearTimeout(flagHideTimer); // Bestehenden Timer stoppen
     const flagImg = document.getElementById('flag');
     const flagContainer = document.getElementById('flag-container');
     const flagBlackout = document.getElementById('flag-blackout');
     const nextBtn = document.getElementById('nextBtn');
 
-    // Nur weitermachen, wenn Flagge sichtbar ist
     if (flagImg.style.visibility !== 'visible') {
-       console.log("applyTimerToCurrentFlag: Flag not visible, doing nothing.");
-       // Sicherheitshalber Next-Button aktivieren, falls er hängen sollte
-       if(nextBtn) nextBtn.disabled = false;
+       // Wenn Flagge nicht sichtbar ist, nichts tun
+       nextBtn.disabled = false; // Aber Next Button sollte aktiv sein
        return;
     }
 
-    const timeValue = document.getElementById('timeSelect').value;
-    if (timeValue !== "Infinity") {
-        // Timeout zum Ausblenden starten
+    const t = document.getElementById('timeSelect').value;
+    if (t !== "Infinity") {
+        // Timeout für Ausblenden starten
         flagHideTimer = setTimeout(() => {
             blackoutActive = true;
             flagContainer.classList.add('blackout');
             flagBlackout.style.display = 'block';
-            flagImg.style.visibility = 'hidden';
-            if(nextBtn) nextBtn.disabled = false; // Jetzt "Nächste" erlauben
-        }, Number(timeValue) * 1000);
-        // Während Timer läuft, ist "Nächste" deaktiviert
-        if(nextBtn) nextBtn.disabled = true;
+            flagImg.style.visibility = 'hidden'; // Flagge ausblenden
+            nextBtn.disabled = false; // Nächste Flagge jetzt möglich
+        }, Number(t) * 1000);
+         nextBtn.disabled = true; // Deaktivieren, bis Timeout abläuft ODER geantwortet wird
     } else {
         // Unbegrenzte Anzeige
-        blackoutActive = false;
+        blackoutActive = false; // Sicherstellen, dass nicht ausgeblendet wird
         flagContainer.classList.remove('blackout');
         flagBlackout.style.display = 'none';
-        // Sicherstellen, dass Flagge sichtbar bleibt (falls vorher Timeout aktiv war)
         flagImg.style.visibility = 'visible';
-        if(nextBtn) nextBtn.disabled = false; // "Nächste" sofort erlauben
+        nextBtn.disabled = false; // Nächste Flagge sofort möglich
     }
 }
 
-// Überprüft die Benutzereingabe gegen das aktuelle Land
+
+// Funktion zur Überprüfung der Eingabe (unverändert, nutzt window.currentCountry)
 function checkGuess() {
-  clearTimeout(flagHideTimer); // Aktiven Timer stoppen
+  clearTimeout(flagHideTimer); // Timer stoppen, wenn geantwortet wird
 
-  const guessInput = document.getElementById('guessInput');
-  const input = guessInput.value.trim().toLowerCase();
-  const currentCountryData = window.currentCountry;
+  const input = document.getElementById('guessInput').value.trim().toLowerCase();
+  const correct = (language === 'de'
+    ? window.currentCountry.translations.deu.common
+    : window.currentCountry.name.common
+  ).toLowerCase();
+
   const resultEl = document.getElementById('result');
-  const submitBtn = document.getElementById('submitBtn');
-  const nextBtn = document.getElementById('nextBtn');
-
-  if (!currentCountryData) {
-    console.error("checkGuess: currentCountry data is missing.");
-    resultEl.textContent = "Fehler: Interner Zustand ungültig.";
-    resultEl.style.color = 'red';
-    return;
-  }
-
-  // Korrekte Namen ermitteln (mit Fallback)
-  const correctDe = currentCountryData.translations?.deu?.common?.toLowerCase();
-  const correctEn = currentCountryData.name?.common?.toLowerCase();
-  const correct = language === 'de' ? correctDe : correctEn;
-  const correctNameForDisplay = language === 'de'
-      ? (currentCountryData.translations?.deu?.common || currentCountryData.name?.common)
-      : (currentCountryData.name?.common || currentCountryData.translations?.deu?.common);
-
-  // Vergleich
-  if (correct && input === correct) {
+  if (input === correct) {
     resultEl.textContent = i18n[language].correct;
     resultEl.style.color = 'green';
     setCurrentStreak(currentStreak + 1);
     document.getElementById('winningStreak').textContent = currentStreak;
   } else {
-    resultEl.textContent = i18n[language].wrong(correctNameForDisplay || 'Unbekannt');
+    const correctName = language === 'de'
+      ? window.currentCountry.translations.deu.common
+      : window.currentCountry.name.common;
+    resultEl.textContent = i18n[language].wrong(correctName);
     resultEl.style.color = 'red';
     setCurrentStreak(0);
     document.getElementById('winningStreak').textContent = 0;
   }
 
-  // Flagge anzeigen, falls ausgeblendet
+  // Flagge wieder anzeigen, falls sie ausgeblendet war
   if (blackoutActive) {
     document.getElementById('flag-container').classList.remove('blackout');
     document.getElementById('flag-blackout').style.display = 'none';
@@ -266,24 +256,28 @@ function checkGuess() {
     blackoutActive = false;
   }
 
-  // UI für nächste Runde vorbereiten
-  if(submitBtn) submitBtn.disabled = true;
-  if(guessInput) guessInput.disabled = true;
-  if(nextBtn) {
-      nextBtn.disabled = false;
-      nextBtn.focus(); // Fokus auf "Nächste Flagge" Button
-  }
+  // Buttons deaktivieren/aktivieren für nächste Runde
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('guessInput').disabled = true;
+  document.getElementById('nextBtn').disabled = false; // Nächste Flagge Button aktivieren
+  document.getElementById('nextBtn').focus(); // Fokus auf "Nächste"
+
+  // Optional: Automatisch nächste Flagge nach kurzer Anzeige des Ergebnisses
+  // setTimeout(() => {
+  //     if (resultEl.textContent !== '') { // Nur wenn eine Antwort gegeben wurde
+  //         loadNewFlag();
+  //     }
+  // }, 2000);
 }
 
-// Wendet die visuellen Effekte (Graustufen etc.) an
+// Funktion zum Anwenden visueller Effekte (unverändert aus Original)
 function applyEffects() {
   const ctr = document.getElementById('flag-container');
-  if (!ctr) return;
   ctr.classList.remove('grayscale', 'glitch', 'pixelate', 'invert');
-  if (document.getElementById('grayscaleToggle')?.checked) ctr.classList.add('grayscale');
-  if (document.getElementById('invertToggle')?.checked) ctr.classList.add('invert');
-  if (document.getElementById('pixelateToggle')?.checked) ctr.classList.add('pixelate');
-  if (document.getElementById('glitchToggle')?.checked) ctr.classList.add('glitch');
+  if (document.getElementById('grayscaleToggle').checked) ctr.classList.add('grayscale');
+  if (document.getElementById('invertToggle').checked) ctr.classList.add('invert');
+  if (document.getElementById('pixelateToggle').checked) ctr.classList.add('pixelate');
+  if (document.getElementById('glitchToggle').checked) ctr.classList.add('glitch');
 }
 
 // --- END OF FILE ui/gameUI.js ---
