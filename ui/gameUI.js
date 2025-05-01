@@ -2,9 +2,7 @@
 
 import { i18n } from '../utils/i18n.js';
 import {
-  // countries, // Wird nicht mehr direkt hier gebraucht
-  countriesForGame, // Das ist jetzt unsere lokale Datenquelle!
-  // setCountriesForGame, // Wird in startScreen.js gesetzt
+  countriesForGame,
   setCurrentCountry,
   language,
   setLanguage,
@@ -16,9 +14,8 @@ import { showStartScreen } from './startScreen.js';
 
 let flagHideTimer = null;
 let blackoutActive = false;
-let flagRevealQueued = false; // Verhindert Race Conditions beim Laden
+let flagRevealQueued = false;
 
-// Funktion zum Setzen von UI-Listenern (unverändert aus Original)
 export function setupUIListeners() {
   document.getElementById('submitBtn').addEventListener('click', checkGuess);
   document.getElementById('nextBtn').addEventListener('click', loadNewFlag);
@@ -30,7 +27,6 @@ export function setupUIListeners() {
     setLanguage(e.target.value);
     updateUI();
     if (document.getElementById('flag-list-modal').style.display === 'block') {
-      // Dynamischer Import für Flaggenliste, falls geöffnet
       import('./flagListModal.js').then(mod => {
         mod.fillFlagListContent();
         setTimeout(mod.initFlagListHover, 0);
@@ -38,8 +34,6 @@ export function setupUIListeners() {
     }
   });
   document.getElementById('timeSelect').addEventListener('change', () => {
-    // Bei Zeitänderung: Aktuelle Flagge neu laden, um Timer anzuwenden
-    // Nur sinnvoll, wenn eine Flagge gerade angezeigt wird
     if (window.currentCountry && !document.getElementById('submitBtn').disabled) {
        applyTimerToCurrentFlag();
     }
@@ -62,18 +56,15 @@ export function setupUIListeners() {
   });
 
   document.getElementById('backToStartBtn').addEventListener('click', showStartScreen);
-
   document.getElementById('winningStreak').textContent = currentStreak;
 }
 
-// Funktion zum Initialisieren des Spiels nach Moduswahl (unverändert aus Original)
 export function setupGameForSelectedOptions() {
   document.getElementById('languageSelect').value = language;
   updateUI();
-  loadNewFlag(); // Erste Flagge laden
+  loadNewFlag();
 }
 
-// Funktion zum Aktualisieren der UI-Texte (unverändert aus Original)
 export function updateUI() {
   document.documentElement.lang = language;
   document.querySelector('h1[data-i18n="title"]').textContent = i18n[language].title;
@@ -86,12 +77,10 @@ export function updateUI() {
   document.querySelector('[data-i18n="nextBtn"]').textContent = i18n[language].nextBtn;
   document.querySelector('[data-i18n="flagListBtn"]').textContent = i18n[language].flagListBtn;
   document.querySelector('[data-i18n="timeLabel"]').textContent = i18n[language].timeLabel;
-  // Titel im Modal nur aktualisieren, wenn es existiert/geöffnet wird
   const flagListTitle = document.querySelector('[data-i18n="flagListTitle"]');
    if(flagListTitle) flagListTitle.textContent = i18n[language].flagListTitle;
   document.querySelector('[data-i18n="winStreak"]').textContent = i18n[language].winStreak;
   document.querySelector('[data-i18n="backToStartBtn"]').textContent = i18n[language].backToStartBtn;
-  // Alt-Text der Flagge aktualisieren, wenn eine angezeigt wird
   if (window.currentCountry) {
     const name = language === 'de'
       ? window.currentCountry.translations.deu.common
@@ -100,12 +89,11 @@ export function updateUI() {
   }
 }
 
-// Funktion zum Laden einer neuen Flagge (ANGEPASST für Offline-Nutzung)
 export function loadNewFlag() {
   console.log("loadNewFlag called. Using countriesForGame with length:", countriesForGame.length);
   blackoutActive = false;
   flagRevealQueued = false;
-  clearTimeout(flagHideTimer); // Alten Timer löschen
+  clearTimeout(flagHideTimer);
 
   const flagContainer = document.getElementById('flag-container');
   const flagBlackout = document.getElementById('flag-blackout');
@@ -115,53 +103,48 @@ export function loadNewFlag() {
   const submitBtn = document.getElementById('submitBtn');
   const nextBtn = document.getElementById('nextBtn');
 
-  // UI-Reset für neue Runde
   flagContainer.classList.remove('blackout');
   flagBlackout.style.display = 'none';
-  flagImg.style.visibility = 'hidden'; // Erstmal verstecken
-  flagImg.removeAttribute('src'); // Quelle entfernen, um Neuladen zu erzwingen
+  flagImg.style.visibility = 'hidden';
+  flagImg.removeAttribute('src');
   resultEl.textContent = '';
   guessInput.value = '';
-  guessInput.disabled = true; // Deaktivieren, bis Flagge geladen ist
+  guessInput.disabled = true;
   submitBtn.disabled = true;
-  nextBtn.disabled = true; // Erst nach Laden/Timeout aktivieren
-  applyEffects(); // Visuelle Effekte anwenden
+  nextBtn.disabled = true;
+  applyEffects();
 
-  // === Kernänderung: Daten aus lokalem Array holen ===
   if (!countriesForGame || countriesForGame.length === 0) {
     console.error("FATAL: No countries available in local countriesForGame array.");
     resultEl.textContent = "Fehler: Keine Länderdaten lokal verfügbar. Bitte online starten.";
     resultEl.style.color = 'red';
-    // Kein Spiel möglich ohne Daten
     return;
   }
 
   const idx = Math.floor(Math.random() * countriesForGame.length);
   const country = countriesForGame[idx];
-  setCurrentCountry(country); // Wichtig für checkGuess
-  window.currentCountry = country; // Alias behalten
+  setCurrentCountry(country);
+  window.currentCountry = country;
 
-  // Land und Flagge setzen (Alt-Text)
   const name = language === 'de'
     ? country.translations.deu.common
     : country.name.common;
   flagImg.alt = i18n[language].flagAlt(name);
-  console.log("Selected country:", name, country.flags.svg); // Debugging
+  console.log("Selected country:", name, country.flags.svg);
 
-  // === Flaggenbild laden (Service Worker wird das Caching übernehmen) ===
-  flagRevealQueued = true; // Markieren, dass dieses Laden gültig ist
+  flagRevealQueued = true;
 
   flagImg.onload = function () {
     console.log("Flag loaded:", flagImg.src);
     if (flagRevealQueued) {
-      flagImg.style.visibility = 'visible'; // Anzeigen, wenn geladen
-      guessInput.disabled = false; // Input freigeben
-      submitBtn.disabled = false; // Prüfen-Button freigeben
-      applyTimerToCurrentFlag(); // Timer starten (oder auch nicht bei Infinity)
-      flagRevealQueued = false; // Laden abgeschlossen
-      // REMOVED THE guessInput.focus() CALL HERE
+      flagImg.style.visibility = 'visible';
+      guessInput.disabled = false;
+      submitBtn.disabled = false;
+      applyTimerToCurrentFlag();
+      flagRevealQueued = false;
+      // Kein focus() mehr hier
     }
-    flagImg.onload = null; // Event Listener entfernen
+    flagImg.onload = null;
   };
 
   flagImg.onerror = function() {
@@ -171,60 +154,52 @@ export function loadNewFlag() {
       flagRevealQueued = false;
       flagImg.onload = null;
       flagImg.onerror = null;
-      // Nächste Flagge versuchen zu laden, auch wenn eine fehlschlägt
       setTimeout(loadNewFlag, 1500);
   }
 
-  // Quelle setzen -> löst Laden aus (wird von SW abgefangen)
   if (country.flags && country.flags.svg) {
      flagImg.src = country.flags.svg;
   } else {
      console.error("Missing flag SVG URL for country:", country.name.common);
      resultEl.textContent = "Fehler: Flaggen-URL fehlt. Überspringe.";
      resultEl.style.color = 'red';
-     setTimeout(loadNewFlag, 1500); // Nächste Flagge versuchen
+     setTimeout(loadNewFlag, 1500);
   }
 }
 
-// Hilfsfunktion, um den Timer anzuwenden/neu zu starten
 function applyTimerToCurrentFlag() {
-    clearTimeout(flagHideTimer); // Bestehenden Timer stoppen
+    clearTimeout(flagHideTimer);
     const flagImg = document.getElementById('flag');
     const flagContainer = document.getElementById('flag-container');
     const flagBlackout = document.getElementById('flag-blackout');
     const nextBtn = document.getElementById('nextBtn');
 
     if (flagImg.style.visibility !== 'visible') {
-       // Wenn Flagge nicht sichtbar ist, nichts tun
-       nextBtn.disabled = false; // Aber Next Button sollte aktiv sein
+       nextBtn.disabled = false;
        return;
     }
 
     const t = document.getElementById('timeSelect').value;
     if (t !== "Infinity") {
-        // Timeout für Ausblenden starten
         flagHideTimer = setTimeout(() => {
             blackoutActive = true;
             flagContainer.classList.add('blackout');
             flagBlackout.style.display = 'block';
-            flagImg.style.visibility = 'hidden'; // Flagge ausblenden
-            nextBtn.disabled = false; // Nächste Flagge jetzt möglich
+            flagImg.style.visibility = 'hidden';
+            nextBtn.disabled = false;
         }, Number(t) * 1000);
-         nextBtn.disabled = true; // Deaktivieren, bis Timeout abläuft ODER geantwortet wird
+         nextBtn.disabled = true;
     } else {
-        // Unbegrenzte Anzeige
-        blackoutActive = false; // Sicherstellen, dass nicht ausgeblendet wird
+        blackoutActive = false;
         flagContainer.classList.remove('blackout');
         flagBlackout.style.display = 'none';
         flagImg.style.visibility = 'visible';
-        nextBtn.disabled = false; // Nächste Flagge sofort möglich
+        nextBtn.disabled = false;
     }
 }
 
-
-// Funktion zur Überprüfung der Eingabe (unverändert, nutzt window.currentCountry)
 function checkGuess() {
-  clearTimeout(flagHideTimer); // Timer stoppen, wenn geantwortet wird
+  clearTimeout(flagHideTimer);
 
   const input = document.getElementById('guessInput').value.trim().toLowerCase();
   const correct = (language === 'de'
@@ -248,7 +223,6 @@ function checkGuess() {
     document.getElementById('winningStreak').textContent = 0;
   }
 
-  // Flagge wieder anzeigen, falls sie ausgeblendet war
   if (blackoutActive) {
     document.getElementById('flag-container').classList.remove('blackout');
     document.getElementById('flag-blackout').style.display = 'none';
@@ -256,21 +230,18 @@ function checkGuess() {
     blackoutActive = false;
   }
 
-  // Buttons deaktivieren/aktivieren für nächste Runde
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('guessInput').disabled = true;
-  document.getElementById('nextBtn').disabled = false; // Nächste Flagge Button aktivieren
-  document.getElementById('nextBtn').focus(); // Fokus auf "Nächste"
+  document.getElementById('nextBtn').disabled = false;
+  // Kein focus() mehr auf dem Next-Button
 
-  //Automatisch nächste Flagge nach kurzer Anzeige des Ergebnisses
-setTimeout(() => {
-     if (resultEl.textContent !== '') { // Nur wenn eine Antwort gegeben wurde
+  setTimeout(() => {
+     if (resultEl.textContent !== '') {
          loadNewFlag();
      }
  }, 2000);
 }
 
-// Funktion zum Anwenden visueller Effekte (unverändert aus Original)
 function applyEffects() {
   const ctr = document.getElementById('flag-container');
   ctr.classList.remove('grayscale', 'glitch', 'pixelate', 'invert');
