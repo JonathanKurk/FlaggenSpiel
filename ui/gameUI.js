@@ -262,12 +262,12 @@ function checkGuess() {
   document.getElementById('nextBtn').disabled = false; // Nächste Flagge Button aktivieren
   document.getElementById('nextBtn').focus(); // Fokus auf "Nächste"
 
-  // Optional: Automatisch nächste Flagge nach kurzer Anzeige des Ergebnisses
-  // setTimeout(() => {
-  //     if (resultEl.textContent !== '') { // Nur wenn eine Antwort gegeben wurde
-  //         loadNewFlag();
-  //     }
-  // }, 2000);
+  //Automatisch nächste Flagge nach kurzer Anzeige des Ergebnisses
+setTimeout(() => {
+     if (resultEl.textContent !== '') { // Nur wenn eine Antwort gegeben wurde
+         loadNewFlag();
+     }
+ }, 2000);
 }
 
 // Funktion zum Anwenden visueller Effekte (unverändert aus Original)
