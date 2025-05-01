@@ -159,7 +159,7 @@ export function loadNewFlag() {
       submitBtn.disabled = false; // Prüfen-Button freigeben
       applyTimerToCurrentFlag(); // Timer starten (oder auch nicht bei Infinity)
       flagRevealQueued = false; // Laden abgeschlossen
-      guessInput.focus();
+      // REMOVED THE guessInput.focus() CALL HERE
     }
     flagImg.onload = null; // Event Listener entfernen
   };
