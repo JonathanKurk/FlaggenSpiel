@@ -201,31 +201,70 @@ function applyTimerToCurrentFlag() {
     }
 }
 
+// Funktion zur Überprüfung der Eingabe (ANGEPASST für Winstreak-Styling/Animation)
 function checkGuess() {
-  clearTimeout(flagHideTimer);
+  clearTimeout(flagHideTimer); // Aktiven Timer stoppen
 
-  const input = document.getElementById('guessInput').value.trim().toLowerCase();
-  const correct = (language === 'de'
-    ? window.currentCountry.translations.deu.common
-    : window.currentCountry.name.common
-  ).toLowerCase();
-
+  const guessInput = document.getElementById('guessInput');
+  const input = guessInput.value.trim().toLowerCase();
+  const currentCountryData = window.currentCountry;
   const resultEl = document.getElementById('result');
-  if (input === correct) {
-    resultEl.textContent = i18n[language].correct;
-    resultEl.style.color = 'green';
-    setCurrentStreak(currentStreak + 1);
-    document.getElementById('winningStreak').textContent = currentStreak;
-  } else {
-    const correctName = language === 'de'
-      ? window.currentCountry.translations.deu.common
-      : window.currentCountry.name.common;
-    resultEl.textContent = i18n[language].wrong(correctName);
+  const submitBtn = document.getElementById('submitBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const streakContainer = document.getElementById('streak-container'); // Container holen
+  const winningStreakEl = document.getElementById('winningStreak'); // Zahl-Element holen
+
+  if (!currentCountryData) {
+    console.error("checkGuess: currentCountry data is missing.");
+    resultEl.textContent = "Fehler: Interner Zustand ungültig.";
     resultEl.style.color = 'red';
-    setCurrentStreak(0);
-    document.getElementById('winningStreak').textContent = 0;
+    return;
   }
 
+  // Korrekte Namen ermitteln (mit Fallback)
+  const correctDe = currentCountryData.translations?.deu?.common?.toLowerCase();
+  const correctEn = currentCountryData.name?.common?.toLowerCase();
+  const correct = language === 'de' ? correctDe : correctEn;
+  const correctNameForDisplay = language === 'de'
+      ? (currentCountryData.translations?.deu?.common || currentCountryData.name?.common)
+      : (currentCountryData.name?.common || currentCountryData.translations?.deu?.common);
+
+  // --- Winstreak Logik ---
+  let streakIncreased = false; // Flag, ob der Streak erhöht wurde
+
+  if (correct && input === correct) {
+    // Richtige Antwort
+    resultEl.textContent = i18n[language].correct;
+    resultEl.style.color = 'green';
+    setCurrentStreak(currentStreak + 1); // Streak erhöhen
+    streakIncreased = true; // Markieren, dass erhöht wurde
+  } else {
+    // Falsche Antwort
+    resultEl.textContent = i18n[language].wrong(correctNameForDisplay || 'Unbekannt');
+    resultEl.style.color = 'red';
+    setCurrentStreak(0); // Streak zurücksetzen
+  }
+
+  // Update der Anzeige und CSS-Klassen für den Streak
+  if (winningStreakEl) {
+      winningStreakEl.textContent = currentStreak; // Zahl aktualisieren
+      if (currentStreak > 0) {
+          streakContainer.classList.add('has-streak'); // Klasse für Gold-Styling
+          if (streakIncreased) {
+              // Nur bei Erhöhung animieren
+              winningStreakEl.classList.add('streak-pulse');
+              // Entferne die Animationsklasse nach der Animation
+              setTimeout(() => {
+                  winningStreakEl.classList.remove('streak-pulse');
+              }, 400); // Dauer muss zur CSS-Animation passen (0.4s)
+          }
+      } else {
+          streakContainer.classList.remove('has-streak'); // Klasse entfernen (für graue 0)
+      }
+  }
+  // -------------------------
+
+  // Flagge wieder anzeigen, falls sie ausgeblendet war
   if (blackoutActive) {
     document.getElementById('flag-container').classList.remove('blackout');
     document.getElementById('flag-blackout').style.display = 'none';
@@ -233,16 +272,21 @@ function checkGuess() {
     blackoutActive = false;
   }
 
-  document.getElementById('submitBtn').disabled = true;
-  document.getElementById('guessInput').disabled = true;
-  document.getElementById('nextBtn').disabled = false;
-  // Kein focus() mehr auf dem Next-Button
+  // UI für nächste Runde vorbereiten
+  if(submitBtn) submitBtn.disabled = true;
+  if(guessInput) guessInput.disabled = true;
+  if(nextBtn) {
+      nextBtn.disabled = false;
+      // KEIN automatischer Fokus auf den Next Button mehr, wie im letzten Schritt entfernt
+      // nextBtn.focus();
+  }
 
-  setTimeout(() => {
-     if (resultEl.textContent !== '') {
-         loadNewFlag();
-     }
- }, 2000);
+  // Optional: Automatisch nächste Flagge nach 2 Sekunden (falls gewünscht)
+   setTimeout(() => {
+      if (resultEl.textContent !== '') { // Nur wenn eine Antwort gegeben wurde
+          loadNewFlag();
+      }
+  }, 2000); // Beachte: Wenn du das nicht willst, kommentiere diesen Block aus!
 }
 
 function applyEffects() {
