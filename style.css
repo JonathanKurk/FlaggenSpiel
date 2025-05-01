@@ -741,3 +741,76 @@ footer {
   .flag-hover-img img { width: 32vw; height: 22vw; min-width: 108px; min-height: 70px;}
   .flag-hover-popup { min-width: 160px; padding: 0.57em 0.45em; }
 }
+
+/* --- Anpassungen für Titel und Winstreak --- */
+
+/* Hauptüberschrift auf Spielbildschirm ausblenden */
+main h1[data-i18n="title"] {
+  display: none;
+}
+
+/* Body als Positionierungs-Kontext für absolute Elemente */
+body {
+  position: relative; /* Nötig für absolute Positionierung des Streaks */
+}
+
+/* Container für den Winstreak */
+#streak-container {
+  position: absolute; /* Oben rechts positionieren */
+  top: 1rem;          /* Abstand von oben */
+  right: 1.5rem;      /* Abstand von rechts */
+  z-index: 100;       /* Sicherstellen, dass es über anderen Elementen liegt */
+  text-align: right;  /* Text im Container rechtsbündig (falls nötig) */
+}
+
+/* Label "Win Streak:" ausblenden */
+#streak-container span[data-i18n="winStreak"] {
+  display: none;
+}
+
+/* Styling für die Winstreak-Zahl */
+#winningStreak {
+  font-family: 'Poppins', 'Inter', sans-serif; /* Cooler, fetter Font (Poppins hinzufügen oder Inter nutzen) */
+  font-weight: 700; /* Fett */
+  font-size: 2.8rem;  /* Deutlich größer */
+  line-height: 1;     /* Verhindert zu großen Zeilenabstand */
+  color: #959cad;     /* Standardfarbe: Grau für 0 */
+  transition: color 0.3s ease, transform 0.15s ease-out, text-shadow 0.3s ease; /* Übergänge für Farbwechsel und Animation */
+  display: inline-block; /* Wichtig für Transformationen */
+  text-shadow: none; /* Standardmäßig kein Schatten */
+}
+
+/* Styling, wenn ein Streak vorhanden ist (Klasse wird per JS hinzugefügt) */
+#streak-container.has-streak #winningStreak {
+  color: #FFD700; /* Gold */
+  /* Subtiler permanenter Schein bei Streak */
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+/* Animationsklasse für den Puls-Effekt */
+#winningStreak.streak-pulse {
+  /* Wende die Keyframe-Animation an */
+  animation: pulseStreak 0.4s ease-out forwards;
+}
+
+/* Keyframes für die Puls-Animation */
+@keyframes pulseStreak {
+  0% {
+    transform: scale(1);
+    /* Standard-Schatten oder kein Schatten */
+  }
+  50% {
+    transform: scale(1.35); /* Wird größer */
+    /* Hellerer, größerer Schein während des Pulses (nur bei Gold relevant) */
+    text-shadow: 0 0 16px rgba(255, 215, 0, 0.7);
+  }
+  100% {
+    transform: scale(1);
+    /* Zurück zum Standard-Schatten oder kein Schatten */
+  }
+}
+
+/* Optional: Poppins Font von Google Fonts importieren (am Anfang der CSS-Datei) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
+/* --- Ende der Anpassungen --- */
