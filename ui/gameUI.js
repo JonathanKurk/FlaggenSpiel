@@ -142,30 +142,33 @@ export function loadNewFlag() {
       submitBtn.disabled = false;
       applyTimerToCurrentFlag();
       flagRevealQueued = false;
-      // Kein focus() mehr hier
     }
     flagImg.onload = null;
   };
 
   flagImg.onerror = function() {
-      console.error("Error loading flag image:", country.flags.svg);
-      resultEl.textContent = "Fehler beim Laden der Flagge. Überspringe.";
-      resultEl.style.color = 'orange';
-      flagRevealQueued = false;
-      flagImg.onload = null;
-      flagImg.onerror = null;
-      setTimeout(loadNewFlag, 1500);
+    console.error("Error loading flag image:", country.flags.svg);
+    resultEl.textContent = "Fehler beim Laden der Flagge. Überspringe.";
+    resultEl.style.color = 'orange';
+    flagRevealQueued = false;
+    flagImg.onload = null;
+    flagImg.onerror = null;
+    setTimeout(loadNewFlag, 1500);
   }
 
   if (country.flags && country.flags.svg) {
-     flagImg.src = country.flags.svg;
+    flagImg.src = country.flags.svg;
   } else {
-     console.error("Missing flag SVG URL for country:", country.name.common);
-     resultEl.textContent = "Fehler: Flaggen-URL fehlt. Überspringe.";
-     resultEl.style.color = 'red';
-     setTimeout(loadNewFlag, 1500);
+    console.error("Missing flag SVG URL for country:", country.name.common);
+    resultEl.textContent = "Fehler: Flaggen-URL fehlt. Überspringe.";
+    resultEl.style.color = 'red';
+    setTimeout(loadNewFlag, 1500);
   }
+
+  // 🔽 Wichtig: Fokus aktiv entfernen (Browser-Autofokus verhindern)
+  document.activeElement?.blur();
 }
+
 
 function applyTimerToCurrentFlag() {
     clearTimeout(flagHideTimer);
