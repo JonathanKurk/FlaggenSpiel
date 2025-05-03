@@ -47,7 +47,6 @@ main h1[data-i18n="title"] {
 }
 
 /* --- Winstreak Styling (Standard: PC-Layout) --- */
-/* Im Standard (PC)-Layout ist der Streak absolut positioniert */
 #streak-container {
   position: absolute;
   top: 1rem;
@@ -55,35 +54,26 @@ main h1[data-i18n="title"] {
   z-index: 100;
   text-align: right;
 }
-
-/* Label "Win Streak:" immer ausblenden */
 #streak-container span[data-i18n="winStreak"] {
   display: none;
 }
-
-/* Styling für die Winstreak-Zahl (gilt für beide Layouts) */
 #winningStreak {
   font-family: 'Poppins', 'Inter', sans-serif;
   font-weight: 700;
   font-size: 2.8rem;
   line-height: 1;
-  color: var(--streak-gray); /* Standardfarbe: Grau für 0 */
+  color: var(--streak-gray);
   transition: color 0.3s ease, transform 0.15s ease-out, text-shadow 0.3s ease;
   display: inline-block;
   text-shadow: none;
 }
-
-/* Styling, wenn ein Streak vorhanden ist (gilt für beide Layouts) */
 #streak-container.has-streak #winningStreak {
   color: var(--streak-gold);
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
 }
-
-/* Animationsklasse für den Puls-Effekt (gilt für beide Layouts) */
 #winningStreak.streak-pulse {
   animation: pulseStreak 0.4s ease-out forwards;
 }
-
 @keyframes pulseStreak {
   0% { transform: scale(1); }
   50% { transform: scale(1.35); text-shadow: 0 0 16px rgba(255, 215, 0, 0.7); }
@@ -92,7 +82,7 @@ main h1[data-i18n="title"] {
 /* --- Ende Winstreak Styling --- */
 
 
-/* Controls (enthält NICHT mehr den Streak im Android-Layout) */
+/* Controls */
 #controls {
   display: flex;
   flex-wrap: wrap;
@@ -101,15 +91,12 @@ main h1[data-i18n="title"] {
   margin-bottom: 2.1rem;
   align-items: center;
 }
-
-/* Standard Label/Select Styling */
 #controls label,
 #controls select {
   font-size: 1.0rem;
   font-weight: 500;
   color: #3b466d;
 }
-
 #controls select, #controls input[type="text"], #quiz input[type="text"] {
   padding: 0.45rem 0.7rem;
   border-radius: var(--radius-input);
@@ -120,32 +107,18 @@ main h1[data-i18n="title"] {
   outline: none;
   box-shadow: none;
 }
-
 #controls select:focus, #controls input[type="text"]:focus, #quiz input[type="text"]:focus {
   border: 1.2px solid var(--color-primary);
   outline: 2px solid #a8c5ff;
 }
-
 #timer-label {
   display: flex;
   align-items: center;
   gap: 0.35em;
 }
 
-
 /* --- Styling für Toggle Switches --- */
-.toggle-switch {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  width: auto;
-  height: 28px;
-  margin: 0 0.5rem;
-  cursor: pointer;
-  user-select: none;
-  gap: 0.6em;
-}
-
+.toggle-switch { position: relative; display: inline-flex; align-items: center; width: auto; height: 28px; margin: 0 0.5rem; cursor: pointer; user-select: none; gap: 0.6em; }
 .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
 .slider { position: relative; width: 48px; height: 26px; background-color: #ccc; transition: .4s; border-radius: 26px; flex-shrink: 0; }
 .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
@@ -156,18 +129,8 @@ input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
 /* --- Ende Toggle Switch Styling --- */
 
 
-/* Quiz-Container (enthält jetzt den Streak im Android-Layout) */
-#quiz {
-  display: inline-block;
-  background: var(--color-card);
-  padding: 2.4rem 2.1rem 2.3rem 2.1rem;
-  border-radius: var(--radius-main);
-  box-shadow: var(--shadow-card);
-  min-width: 364px;
-  max-width: 98vw;
-  transition: box-shadow var(--transition-speed);
-  text-align: center; /* Stellt sicher, dass zentrierte Elemente wie der Streak richtig wirken */
-}
+/* Quiz-Container */
+#quiz { display: inline-block; background: var(--color-card); padding: 2.4rem 2.1rem 2.3rem 2.1rem; border-radius: var(--radius-main); box-shadow: var(--shadow-card); min-width: 364px; max-width: 98vw; transition: box-shadow var(--transition-speed); text-align: center; }
 
 /* Flaggen-Container */
 #flag-container { width: 340px; max-width: 96vw; height: 204px; margin: 0 auto 1.5rem; overflow: hidden; background: #f0f3fa; border-radius: 11px; position: relative; box-shadow: 0 0.5px 6px rgba(32,60,140,0.07); }
@@ -193,7 +156,6 @@ button:hover, button:focus { background: var(--color-primary-hover); box-shadow:
 #result { margin-top: 0.6rem; min-height: 1.2rem; font-weight: bold; font-size: 1.09rem; }
 
 
-/* --- Restliches Styling (Modals, Footer, etc.) bleibt wie vorher --- */
 /* == MODAL, Liste etc == */
 .flag-list-modal { position: fixed; z-index: 11000; top: 0; left: 0; right: 0; bottom: 0; }
 .flag-list-modal-backdrop { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--modal-bg); cursor: pointer; }
@@ -235,12 +197,37 @@ button:hover, button:focus { background: var(--color-primary-hover); box-shadow:
 .mode-select-btn:hover .continent-abbr, .mode-select-btn.active .continent-abbr { background: rgba(255,255,255,0.18); color: #fff; }
 @media (max-width: 600px) { .start-content { padding: 2.2rem 1.4rem 1.8rem; gap: 2.2rem; } #start-title { font-size: 2.2rem; } .start-step h2 { font-size: 1.3rem; margin-bottom: 1.2rem; } .mode-select-buttons { grid-template-columns: 1fr; gap: 0.7rem; } .mode-select-btn { padding: 0.75em 1em; font-size: 1.02rem; } .lang-select-buttons { gap: 0.9rem; } .lang-select-btn { font-size: 1.1rem; padding: 0.7em 0.4em; } }
 
-/* BACK TO START BUTTON */
+/* BACK TO START BUTTON (im Spiel) */
 #backToStartBtn { background: #e8edfc; color: #1b3b8a; border: 1.2px solid #c5d4f0; font-size: 1.03em; border-radius: 7px; font-weight: 600; margin-left: 1.08em; padding: 0.48em 1.2em; transition: background 0.16s, color 0.11s; }
 #backToStartBtn:hover, #backToStartBtn:focus { background: #cbe0fc; color: var(--color-primary-hover); }
 
+/* === NEUES STYLING für Back-Button im Startscreen === */
+.back-btn-secondary {
+    background: #e8edfc; /* Heller Hintergrund */
+    color: #1b3b8a; /* Dunkelblaue Schrift */
+    border: 1.2px solid #c5d4f0; /* Heller Rand */
+    font-size: 1.0em; /* Etwas kleiner als primäre Buttons? */
+    border-radius: 7px;
+    font-weight: 600;
+    padding: 0.48em 1.2em;
+    transition: background 0.16s, color 0.11s, box-shadow 0.16s;
+    cursor: pointer;
+    margin: 0 auto; /* Zentrieren, wenn im eigenen Container */
+    display: inline-block; /* Erlaubt margin auto */
+    box-shadow: none; /* Kein Schatten standardmäßig */
+}
+.back-btn-secondary:hover,
+.back-btn-secondary:focus {
+    background: #dce6fa; /* Etwas dunkler beim Hover */
+    color: var(--color-primary-hover);
+    box-shadow: 0 1px 4px rgba(68, 97, 165, 0.1); /* Leichter Schatten beim Hover */
+}
+/* ==================================================== */
+
+
 /* FOOTER */
-footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5rem 2rem 0.5rem; font-size: 1.01rem; border-top: 1.5px solid #e0e6f0; }
+/* Footer und Flaggenliste etc. unverändert lassen */
+footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5rem 2rem 0.5rem; font-size: 1.01rem; border-top: 1.5px solid #e0e6f0; display: none; /* Footer erstmal ausblenden, falls nicht benötigt */ }
 #impressum { max-width: 890px; margin: 0 auto; text-align: left; }
 #impressum h2 { font-size: 1.37rem; margin-bottom: 1.07rem; color: var(--color-primary-hover); letter-spacing: 0.01em; font-weight: 700; }
 .footer-section { margin-bottom: 1.34rem; }
@@ -251,7 +238,7 @@ footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5r
 .footer-note { text-align: center; margin-top: 1.25rem; font-size: 0.91rem; color: #7f8cab; }
 #showFlagListBtn { border-radius: 8px; font-size: 1.03em; background: #e7eefd; color: #2040aa; font-weight: 600; border: 1.2px solid #d5def6; margin-top: 0.24em; margin-bottom: 0.07em; transition: background 0.13s, color 0.13s; }
 #showFlagListBtn:hover, #showFlagListBtn:focus { background: #d3e0fd; color: #1544aa; }
-@media (max-width: 520px) { #flag-container { width: 97vw; height: 31vw; min-height: 110px; } /* Hover Popup Anpassungen bleiben aktiv */ }
+@media (max-width: 520px) { #flag-container { width: 97vw; height: 31vw; min-height: 110px; } }
 
 
 /* --- Styling für Plattformauswahl-Modal --- */
@@ -267,27 +254,8 @@ footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5r
 
 
 /* --- Anpassungen für Android Layout --- */
-/* Standardmäßig ist #streak-container absolut positioniert (siehe oben) */
-
-/* Regeln nur für Android */
-body.platform-android #controls {
-    /* Controls bleiben ein Flex-Container, aber der Streak ist nicht mehr hier */
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem 1.5rem; /* Behalte existierenden Abstand bei */
-}
-
-body.platform-android #streak-container {
-    position: static; /* Entfernt absolute Positionierung */
-    order: 0; /* Zurücksetzen, falls es mal in #controls war */
-    width: auto; /* Breite automatisch */
-    text-align: center; /* Zentriert die Zahl */
-    margin-top: 1.5rem; /* Abstand NACH den Buttons/Result */
-    margin-bottom: 0; /* Kein extra Abstand nach unten */
-    display: block; /* Sicherstellen, dass es Platz einnimmt für margin */
-}
+body.platform-android #controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1rem 1.5rem; }
+body.platform-android #streak-container { position: static; width: auto; text-align: center; margin-top: 1.5rem; margin-bottom: 0; display: block; }
 /* --- Ende Android Layout Anpassungen --- */
 
 /* --- END OF FILE style.css --- */
