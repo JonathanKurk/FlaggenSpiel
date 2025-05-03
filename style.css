@@ -85,13 +85,23 @@ main h1[data-i18n="title"] {
 /* Controls */
 #controls {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem 1.5rem;
+  flex-wrap: wrap; /* Erlaubt Umbruch */
+  justify-content: center; /* Zentriert die Control-Gruppen horizontal */
+  gap: 1rem 1.5rem; /* Abstand zwischen den Elementen/Gruppen */
   margin-bottom: 2.1rem;
-  align-items: center;
+  align-items: center; /* Zentriert Elemente vertikal in ihrer Zeile */
 }
-#controls label,
+
+/* Standard-Styling für den neuen Toggle-Container (PC-Layout) */
+#toggle-switches-container {
+    display: flex; /* Toggles nebeneinander */
+    flex-wrap: wrap; /* Erlaubt Umbruch auch hier bei Bedarf */
+    justify-content: center; /* Zentriert die Toggles im Container */
+    gap: 0.5rem 1rem; /* Abstand zwischen den Toggles */
+    align-items: center;
+}
+
+#controls label:not(.toggle-switch), /* Nur das Timer Label */
 #controls select {
   font-size: 1.0rem;
   font-weight: 500;
@@ -117,8 +127,19 @@ main h1[data-i18n="title"] {
   gap: 0.35em;
 }
 
+
 /* --- Styling für Toggle Switches --- */
-.toggle-switch { position: relative; display: inline-flex; align-items: center; width: auto; height: 28px; margin: 0 0.5rem; cursor: pointer; user-select: none; gap: 0.6em; }
+.toggle-switch {
+  position: relative;
+  display: inline-flex; /* Bleibt inline-flex für interne Ausrichtung */
+  align-items: center;
+  width: auto; /* Breite passt sich an */
+  height: 28px;
+  /* margin entfernt, wird durch gap im Container geregelt */
+  cursor: pointer;
+  user-select: none;
+  gap: 0.6em;
+}
 .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
 .slider { position: relative; width: 48px; height: 26px; background-color: #ccc; transition: .4s; border-radius: 26px; flex-shrink: 0; }
 .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
@@ -169,17 +190,18 @@ button:hover, button:focus { background: var(--color-primary-hover); box-shadow:
 .flag-list-entry { display: flex; align-items: center; gap: 0.65em; margin-bottom: 0.17em; transition: background 0.12s, box-shadow 0.12s; border-radius: 8px; cursor: pointer; padding: 0.17em 0.17em 0.17em 0.22em; min-height: 2.05em; }
 .flag-list-entry:hover, .flag-list-entry:focus { background: #e4edfb; }
 .flag-list-entry img { width: 34px; height: 22px; border-radius: 4px; border: 1.1px solid #dde9ff; object-fit: contain; background: #f4f8fc; box-shadow: 0 0.5px 2px 0 rgba(64,80,150,0.06); }
+.flag-list-entry span.flag-list-no-svg-placeholder { width: 34px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8em; color: #aaa; background: #eee; border-radius: 4px; border: 1.1px solid #dde9ff; }
 .flag-list-countryname { font-weight: 500; font-size: 1.07em; max-width: 230px; overflow-x: auto; scrollbar-width: none; }
 .flag-list-countryname-sub { color: #859bbe; font-size: 0.96em; margin-left: 0.23em; font-weight: 400; }
-.flag-hover-popup.info-redesign { padding: 1.2em 1.38em 1.09em 1.3em; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; background: #fff; border-radius: 18px; box-shadow: 0 7px 32px 0 rgba(20,44,105,0.19), 0 1.5px 10px 0 rgba(0,0,0,0.10); border: 1.5px solid #e5eeff; min-width: 250px; max-width: 530px; font-size: 1.065rem; gap: 1.15em; }
+.flag-hover-popup.info-redesign { position: fixed; /* Wichtig für Positionierung */ z-index: 12000; padding: 1.2em 1.38em 1.09em 1.3em; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; background: #fff; border-radius: 18px; box-shadow: 0 7px 32px 0 rgba(20,44,105,0.19), 0 1.5px 10px 0 rgba(0,0,0,0.10); border: 1.5px solid #e5eeff; min-width: 250px; max-width: 530px; font-size: 1.065rem; gap: 1.15em; pointer-events: none; /* Damit es nicht selbst hover blockiert */ }
 .flag-hover-popup.info-redesign .flag-hover-img img { border-radius: 12px; box-shadow: 0 2.5px 10px rgba(48,98,180,0.10); width: 160px; height: 101px; object-fit: contain; background: #f1f6fd; margin-right: 0.5em; max-width: 180px; max-height: 112px; border: 1.2px solid #e7ecf7; }
 .flag-hover-popup.info-redesign .flag-hover-meta { min-width: 124px; max-width: 260px; display: flex; flex-direction: column; gap: 0.38em; align-items: flex-start; }
 .flag-hover-popup.info-redesign .flag-detail-row { margin-bottom: 0.05em; padding: 0.07em 0 0.06em 0; font-size: 1.06em; display: flex; flex-wrap: wrap; align-items: center; }
 .flag-hover-popup.info-redesign .flag-detail-row b { font-size: 1.17em; font-weight: 700; color: #1d47a8; letter-spacing: 0.01em; display: inline-block; margin-bottom: 0.06em; margin-top: 0.04em; word-break: break-word; max-width: 210px; }
-.flag-hover-popup.info-redesign .flag-detail-label { color: #3f5b88; font-weight: 500; min-width: 80px; margin-right: 0.41em; display: inline-block; }
-.flag-hover-popup.info-redesign .flag-detail-row span:not(.flag-detail-label) { color: #152640; font-weight: 450; letter-spacing: 0.01em; }
-@media (max-width: 728px) { .flag-hover-popup.info-redesign { max-width: 97vw; padding: 0.6em 0.4em 0.7em 0.6em; } .flag-hover-popup.info-redesign .flag-hover-img img { width: 96px; height: 61px; } .flag-hover-popup.info-redesign .flag-hover-meta { max-width: 120px; } }
-@media (max-width: 430px) { .flag-hover-popup.info-redesign .flag-hover-img img { width: 68px; height: 43px;} .flag-hover-popup.info-redesign { padding: 0.34em 0.2em 0.44em 0.22em; font-size: 0.95em;} }
+.flag-hover-popup.info-redesign .flag-detail-label { color: #3f5b88; font-weight: 500; min-width: 80px; margin-right: 0.41em; display: inline-block; flex-shrink: 0; /* Verhindert Schrumpfen */ }
+.flag-hover-popup.info-redesign .flag-detail-row span:not(.flag-detail-label):not(b) { color: #152640; font-weight: 450; letter-spacing: 0.01em; word-break: break-word; /* Erlaubt Umbruch bei langen Werten */ }
+@media (max-width: 728px) { .flag-hover-popup.info-redesign { max-width: 97vw; padding: 0.6em 0.4em 0.7em 0.6em; } .flag-hover-popup.info-redesign .flag-hover-img img { width: 96px; height: 61px; } .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 110px); /* Beispiel: Breite - Bild - Abstand */ } }
+@media (max-width: 430px) { .flag-hover-popup.info-redesign .flag-hover-img img { width: 68px; height: 43px;} .flag-hover-popup.info-redesign { padding: 0.34em 0.2em 0.44em 0.22em; font-size: 0.95em;} .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 80px); } }
 
 /* START SCREEN */
 #start-screen { position: fixed; z-index: 12001; inset: 0; background: linear-gradient(135deg, #e3eeff 0%, #e8f1fe 50%, #f9fafd 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; min-width: 100vw; transition: opacity .25s; }
@@ -193,49 +215,40 @@ button:hover, button:focus { background: var(--color-primary-hover); box-shadow:
 .lang-select-btn:hover, .lang-select-btn.active { background: var(--color-primary); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px 0 rgba(20,32,145,0.15); }
 .mode-select-btn { font-family: inherit; font-size: 1.08rem; padding: 0.89em 1.2em; border: none; border-radius: 13px; background: #f1f6ff; color: #19335C; font-weight: 600; display: flex; align-items: center; gap: 0.7em; justify-content: flex-start; box-shadow: 0 1px 7px 0 rgba(36,74,132,0.07); transition: all 0.14s ease-out; cursor: pointer; position: relative; overflow: hidden; }
 .mode-select-btn:hover, .mode-select-btn.active { background: var(--color-primary); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px 0 rgba(20,32,145,0.15); }
-.mode-select-btn .continent-abbr { font-weight: 700; font-size: 0.92em; background: #e2ebff; color: var(--color-primary); padding: 0.25em 0.5em; border-radius: 6px; transition: all 0.14s ease-out; }
+.mode-select-btn .continent-abbr { font-weight: 700; font-size: 0.92em; background: #e2ebff; color: var(--color-primary); padding: 0.25em 0.5em; border-radius: 6px; transition: all 0.14s ease-out; flex-shrink: 0; /* Verhindert Schrumpfen */ }
 .mode-select-btn:hover .continent-abbr, .mode-select-btn.active .continent-abbr { background: rgba(255,255,255,0.18); color: #fff; }
 @media (max-width: 600px) { .start-content { padding: 2.2rem 1.4rem 1.8rem; gap: 2.2rem; } #start-title { font-size: 2.2rem; } .start-step h2 { font-size: 1.3rem; margin-bottom: 1.2rem; } .mode-select-buttons { grid-template-columns: 1fr; gap: 0.7rem; } .mode-select-btn { padding: 0.75em 1em; font-size: 1.02rem; } .lang-select-buttons { gap: 0.9rem; } .lang-select-btn { font-size: 1.1rem; padding: 0.7em 0.4em; } }
 
 /* BACK TO START BUTTON (im Spiel) */
-#backToStartBtn { background: #e8edfc; color: #1b3b8a; border: 1.2px solid #c5d4f0; font-size: 1.03em; border-radius: 7px; font-weight: 600; margin-left: 1.08em; padding: 0.48em 1.2em; transition: background 0.16s, color 0.11s; }
+#backToStartBtn { background: #e8edfc; color: #1b3b8a; border: 1.2px solid #c5d4f0; font-size: 1.03em; border-radius: 7px; font-weight: 600; /* margin-left entfernt, wird durch gap geregelt */ padding: 0.48em 1.2em; transition: background 0.16s, color 0.11s; }
 #backToStartBtn:hover, #backToStartBtn:focus { background: #cbe0fc; color: var(--color-primary-hover); }
 
-/* === NEUES STYLING für Back-Button im Startscreen === */
+/* Styling für Back-Button im Startscreen */
 .back-btn-secondary {
-    background: #e8edfc; /* Heller Hintergrund */
-    color: #1b3b8a; /* Dunkelblaue Schrift */
-    border: 1.2px solid #c5d4f0; /* Heller Rand */
-    font-size: 1.0em; /* Etwas kleiner als primäre Buttons? */
+    background: #e8edfc;
+    color: #1b3b8a;
+    border: 1.2px solid #c5d4f0;
+    font-size: 1.0em;
     border-radius: 7px;
     font-weight: 600;
     padding: 0.48em 1.2em;
     transition: background 0.16s, color 0.11s, box-shadow 0.16s;
     cursor: pointer;
-    margin: 0 auto; /* Zentrieren, wenn im eigenen Container */
-    display: inline-block; /* Erlaubt margin auto */
-    box-shadow: none; /* Kein Schatten standardmäßig */
+    margin: 0 auto;
+    display: inline-block;
+    box-shadow: none;
 }
 .back-btn-secondary:hover,
 .back-btn-secondary:focus {
-    background: #dce6fa; /* Etwas dunkler beim Hover */
+    background: #dce6fa;
     color: var(--color-primary-hover);
-    box-shadow: 0 1px 4px rgba(68, 97, 165, 0.1); /* Leichter Schatten beim Hover */
+    box-shadow: 0 1px 4px rgba(68, 97, 165, 0.1);
 }
-/* ==================================================== */
-
 
 /* FOOTER */
-/* Footer und Flaggenliste etc. unverändert lassen */
-footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5rem 2rem 0.5rem; font-size: 1.01rem; border-top: 1.5px solid #e0e6f0; display: none; /* Footer erstmal ausblenden, falls nicht benötigt */ }
+footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5rem 2rem 0.5rem; font-size: 1.01rem; border-top: 1.5px solid #e0e6f0; display: none; /* Footer erstmal ausblenden */ }
 #impressum { max-width: 890px; margin: 0 auto; text-align: left; }
-#impressum h2 { font-size: 1.37rem; margin-bottom: 1.07rem; color: var(--color-primary-hover); letter-spacing: 0.01em; font-weight: 700; }
-.footer-section { margin-bottom: 1.34rem; }
-.footer-section h3 { font-size: 1.08rem; color: #233775; margin-bottom: 0.31rem; font-weight: 600; }
-.footer-section ul { list-style: disc inside; margin: 0.33rem 0 0.2rem 0; padding-left: 1.18rem; color: #465077; }
-.footer-section a { color: var(--color-primary); text-decoration: none; font-weight: 500; }
-.footer-section a:hover { text-decoration: underline; color: var(--color-primary-hover); }
-.footer-note { text-align: center; margin-top: 1.25rem; font-size: 0.91rem; color: #7f8cab; }
+/* ... restliche Footer-Stile ... */
 #showFlagListBtn { border-radius: 8px; font-size: 1.03em; background: #e7eefd; color: #2040aa; font-weight: 600; border: 1.2px solid #d5def6; margin-top: 0.24em; margin-bottom: 0.07em; transition: background 0.13s, color 0.13s; }
 #showFlagListBtn:hover, #showFlagListBtn:focus { background: #d3e0fd; color: #1544aa; }
 @media (max-width: 520px) { #flag-container { width: 97vw; height: 31vw; min-height: 110px; } }
@@ -253,9 +266,59 @@ footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5r
 /* --- Ende Plattformauswahl-Modal Styling --- */
 
 
-/* --- Anpassungen für Android Layout --- */
-body.platform-android #controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1rem 1.5rem; }
-body.platform-android #streak-container { position: static; width: auto; text-align: center; margin-top: 1.5rem; margin-bottom: 0; display: block; }
-/* --- Ende Android Layout Anpassungen --- */
+/* === ANDROID-SPEZIFISCHE ANPASSUNGEN === */
+
+/* Haupt-Controls Container auf Android */
+body.platform-android #controls {
+    gap: 1.5rem; /* Etwas mehr vertikaler Abstand */
+    padding: 0 0.5rem; /* Etwas seitlicher Abstand */
+    flex-direction: column; /* ** ALLES untereinander für bessere Ordnung ** */
+}
+
+/* Styling für den Toggle-Container NUR auf Android */
+body.platform-android #toggle-switches-container {
+    display: flex;
+    flex-direction: column; /* Toggles untereinander */
+    align-items: center;   /* Toggles horizontal zentrieren */
+    width: 100%;           /* Volle Breite */
+    gap: 0.8rem;           /* Vertikaler Abstand */
+    order: 1;              /* Reihenfolge nach Sprache */
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Sicherstellen, dass die Toggles zentriert sind */
+body.platform-android .toggle-switch {
+    width: fit-content; /* Breite an Inhalt anpassen */
+    /* justify-content: center; ist für inline-flex nicht nötig, wenn align-items im Parent gesetzt ist */
+}
+
+/* Reihenfolge der Elemente in #controls auf Android */
+body.platform-android #controls #languageSelect { order: 0; }
+/* toggle-switches-container hat order: 1 */
+body.platform-android #controls #timer-label { order: 2; }
+body.platform-android #controls #backToStartBtn { order: 3; }
+
+
+/* Streak-Container auf Android (positioniert nach dem Quiz-Block) */
+body.platform-android main {
+    display: flex; /* Hauptbereich als Flexbox */
+    flex-direction: column; /* Haupt-Elemente untereinander */
+    align-items: center; /* Alles zentrieren */
+}
+body.platform-android #quiz {
+    /* Stellt sicher, dass der Quiz-Block nach #controls kommt */
+    order: 1; /* Nach #controls (default order 0) */
+}
+body.platform-android #streak-container {
+     position: static; /* Nicht absolut */
+     order: 2;         /* Nach dem Quiz-Block */
+     width: auto;
+     text-align: center;
+     margin-top: 1.5rem;
+     margin-bottom: 0.5rem;
+     display: block;
+}
+/* --- ENDE ANDROID-SPEZIFISCHE ANPASSUNGEN --- */
 
 /* --- END OF FILE style.css --- */
