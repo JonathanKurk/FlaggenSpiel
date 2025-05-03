@@ -1,22 +1,53 @@
 // --- START OF FILE script.js ---
 import { i18n } from './utils/i18n.js';
 import { initStartScreen, showGameScreen, showStartScreen } from './ui/startScreen.js';
-// Stelle sicher, dass updateUserInterfaceForPlatform korrekt importiert wird
-import { setupUIListeners, updateUI, setupGameForSelectedOptions, updateUserInterfaceForPlatform } from './ui/gameUI.js';
-import { checkPlatformChoice } from './platform.js'; // Importieren der neuen Funktion
+import { setupUIListeners, updateUI, setupGameForSelectedOptions, updateUserInterfaceForPlatform, displayCurrentStreak } from './ui/gameUI.js'; // displayCurrentStreak importiert
+import { checkPlatformChoice } from './platform.js';
 
 let countries = [];
 let currentCountry = null;
-let language = 'de'; // Default language
-let selectedMode = 'all'; // Default mode
-let countriesForGame = []; // Holds the filtered list for the current game session
+let language = 'de';
+let selectedMode = 'all'; // Wichtig für den Zugriff auf den richtigen Streak
+let countriesForGame = [];
 
-// Lade Streak aus localStorage oder starte bei 0
-let initialStreak = parseInt(localStorage.getItem('flagGameWinStreak') || '0', 10);
-let currentStreak = isNaN(initialStreak) ? 0 : initialStreak;
+// ---- NEU: Streak-Management mit Objekt ----
+let winStreaks = {}; // Objekt zur Speicherung der Streaks pro Modus
 
-// Variable für die Plattform des Benutzers
-export let userPlatform = null; // Wird von platform.js gesetzt
+// Lade Streaks aus localStorage beim Start
+function loadWinStreaks() {
+    try {
+        const storedStreaks = localStorage.getItem('flagGameWinStreaks'); // Neuer Key
+        if (storedStreaks) {
+            winStreaks = JSON.parse(storedStreaks);
+            // Sicherstellen, dass alle Werte Zahlen sind (falls Daten korrupt)
+            for (const mode in winStreaks) {
+                if (typeof winStreaks[mode] !== 'number' || isNaN(winStreaks[mode])) {
+                    winStreaks[mode] = 0;
+                }
+            }
+            console.log("Loaded win streaks:", winStreaks);
+        } else {
+            winStreaks = {}; // Start mit leerem Objekt, falls nichts gespeichert
+            console.log("No win streaks found in localStorage, starting fresh.");
+        }
+    } catch (e) {
+        console.error("Error loading or parsing win streaks from localStorage:", e);
+        winStreaks = {}; // Bei Fehler zurücksetzen
+    }
+}
+
+// Speichere Streaks in localStorage
+export function saveWinStreaks() {
+    try {
+        localStorage.setItem('flagGameWinStreaks', JSON.stringify(winStreaks));
+        // console.log("Saved win streaks:", winStreaks); // Optional: zum Debuggen
+    } catch (e) {
+        console.error("Error saving win streaks to localStorage:", e);
+    }
+}
+// ------------------------------------------
+
+export let userPlatform = null;
 
 export {
   countries,
@@ -24,46 +55,27 @@ export {
   language,
   selectedMode,
   countriesForGame,
-  currentStreak,
+  winStreaks, // Exportiere das Objekt statt currentStreak
+  // currentStreak, // Wird nicht mehr direkt exportiert
 };
 
 // State setter functions used by other modules
 export function setCountries(data) { countries = data; }
 export function setCurrentCountry(c) { currentCountry = c; window.currentCountry = c; }
 export function setLanguage(l) { language = l; }
-export function setSelectedMode(m) { selectedMode = m; }
+export function setSelectedMode(m) {
+    console.log("Mode selected:", m);
+    selectedMode = m;
+    // Stelle sicher, dass der Streak für den neuen Modus angezeigt wird
+    displayCurrentStreak(); // Ruft die UI-Funktion auf
+}
 export function setCountriesForGame(arr) { countriesForGame = arr; }
 
-// Funktion zum Setzen des Streaks, speichert auch in localStorage
-export function setCurrentStreak(streak) {
-    if (typeof streak === 'number' && !isNaN(streak)) {
-        currentStreak = streak;
-        localStorage.setItem('flagGameWinStreak', currentStreak.toString()); // Speichern
-        // Update UI der Zahl sofort (wird auch in checkGuess gemacht für Animation)
-        const streakEl = document.getElementById('winningStreak');
-        const streakContainer = document.getElementById('streak-container');
-        if (streakEl) streakEl.textContent = currentStreak;
-        // Aktualisiere auch die has-streak Klasse sofort
-        if (streakContainer) {
-           if (currentStreak > 0) {
-                streakContainer.classList.add('has-streak');
-           } else {
-                streakContainer.classList.remove('has-streak');
-           }
-        }
+// Die alte setCurrentStreak Funktion wird entfernt, da die Logik in checkGuess liegt.
 
-    } else {
-        console.error("Invalid streak value passed to setCurrentStreak:", streak);
-    }
-}
-
-// Setter für Plattform
 export function setUserPlatform(platform) {
     userPlatform = platform;
     console.log("User platform set to:", userPlatform);
-    // UI anpassen, nachdem Plattform bekannt ist und DOM bereit ist
-    // Stelle sicher, dass dies aufgerufen wird, wenn das DOM bereit ist.
-    // Der Aufruf in loadCountries nach checkPlatformChoice ist gut.
     updateUserInterfaceForPlatform();
 }
 
@@ -71,25 +83,16 @@ export function setUserPlatform(platform) {
 export function setGameCountries(arr) {
   countriesForGame = arr;
   // Wichtig: Streak NICHT zurücksetzen beim Moduswechsel!
-  // Stattdessen den aktuell gespeicherten Streak anzeigen
-  const streakEl = document.getElementById('winningStreak');
-  if(streakEl) streakEl.textContent = currentStreak;
-  // Sicherstellen, dass Styling stimmt
-  const streakContainer = document.getElementById('streak-container');
-   if (streakContainer) {
-      if (currentStreak > 0) {
-           streakContainer.classList.add('has-streak');
-      } else {
-           streakContainer.classList.remove('has-streak');
-      }
-   }
+  // Stattdessen den Streak für den NEUEN Modus anzeigen
+  displayCurrentStreak(); // Zeigt den Streak für den aktuellen 'selectedMode' an
 }
 
 // Hauptfunktion zum Laden der Länderdaten
 async function loadCountries() {
   try {
     console.log("Loading country data...");
-    // Fetch all necessary fields at once
+    loadWinStreaks(); // Lade Streaks BEVOR irgendwas angezeigt wird
+
     const res = await fetch('https://restcountries.com/v3.1/all?fields=name,translations,flags,continents,subregion,population,area,capital,region,cca3,demonyms,currencies,languages');
     if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -97,12 +100,8 @@ async function loadCountries() {
     const data = await res.json();
     console.log("Country data fetched.");
 
-    // Pre-filter countries to ensure essential data exists
     const filteredData = data.filter(
-      c => c.translations?.deu?.common &&
-           c.name?.common &&
-           c.flags?.svg &&
-           Array.isArray(c.continents) && c.continents.length > 0
+      c => c.translations?.deu?.common && c.name?.common && c.flags?.svg && Array.isArray(c.continents) && c.continents.length > 0
     );
 
     if (!filteredData || filteredData.length === 0) {
@@ -113,18 +112,12 @@ async function loadCountries() {
     console.log("Valid countries found:", filteredData.length);
     setCountries(filteredData);
 
-    // Plattform prüfen (zeigt ggf. Modal an und wartet auf Auswahl)
-    // Muss vor UI-Initialisierung geschehen, die vom Layout abhängt
     await checkPlatformChoice();
 
-    // Initialize UI elements after data and platform are ready
-    initStartScreen(); // Setup start screen listeners
-    setupUIListeners(); // Setup main game UI listeners (kennt jetzt Plattform)
+    initStartScreen();
+    setupUIListeners(); // Ruft intern displayCurrentStreak auf
 
-    // Sicherstellen, dass das Layout nach dem Setup korrekt ist
-    // (Kann nötig sein, falls setupUIListeners das DOM verändert)
-     updateUserInterfaceForPlatform();
-
+    // updateUserInterfaceForPlatform(); // Wird schon in setUserPlatform aufgerufen
 
   } catch (e) {
     console.error('Error loading or processing country data:', e);
@@ -132,6 +125,5 @@ async function loadCountries() {
   }
 }
 
-// Start loading data when the DOM is ready
 document.addEventListener('DOMContentLoaded', loadCountries);
 // --- END OF FILE script.js ---
