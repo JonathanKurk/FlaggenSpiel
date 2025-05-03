@@ -12,7 +12,10 @@
 
   <!-- Stylesheet & Fonts -->
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Optional: Google Font für Streak hinzufügen -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- Start Screen Overlay (initial sichtbar) -->
@@ -60,24 +63,61 @@
         </div>
       </div>
     </div>
+  </div> <!-- Ende #start-screen -->
+
+  <!-- ==== Plattformauswahl-Modal ==== -->
+  <div id="platform-select-modal" class="platform-modal" style="display: none;"> <!-- Sicherstellen, dass es initial versteckt ist -->
+    <div class="platform-modal-content">
+      <h2>Auf welchem Gerät spielst du?</h2>
+      <p>Diese Einstellung beeinflusst das Layout leicht.</p>
+      <div class="platform-modal-buttons">
+        <button data-platform="pc">💻 PC / Desktop</button>
+        <button data-platform="android">📱 Android / Mobil</button>
+      </div>
+    </div>
   </div>
+  <!-- ==================================== -->
 
   <!-- Haupt-Spielbereich (initial versteckt) -->
   <main style="display:none;">
-    <h1 data-i18n="title">Flaggen-Ratespiel</h1>
+    <h1 data-i18n="title">Flaggen-Ratespiel</h1> <!-- Wird per CSS ausgeblendet -->
+
+    <!-- Container für den Streak, Position variiert je nach Plattform -->
     <div id="streak-container">
-      <span data-i18n="winStreak">Win Streak:</span>
+      <span data-i18n="winStreak">Win Streak:</span> <!-- Wird per CSS ausgeblendet -->
       <span id="winningStreak">0</span>
     </div>
+
     <div id="controls">
+      <!-- Sprachauswahl -->
       <select id="languageSelect">
         <option value="de">Deutsch</option>
         <option value="en">English</option>
       </select>
-      <label><input type="checkbox" id="grayscaleToggle"><span data-i18n="grayscaleLabel">Flaggen in Schwarz-Weiß</span></label>
-      <label><input type="checkbox" id="glitchToggle"><span data-i18n="glitchLabel">Flaggen glitched</span></label>
-      <label><input type="checkbox" id="pixelateToggle"><span data-i18n="pixelateLabel">Flagge verschwommen</span></label>
-      <label><input type="checkbox" id="invertToggle"><span data-i18n="invertLabel">Farben invertieren</span></label>
+
+      <!-- Toggle Switches für Schwierigkeit -->
+      <label class="toggle-switch">
+          <input type="checkbox" id="grayscaleToggle">
+          <span class="slider round"></span>
+          <span class="toggle-label" data-i18n="grayscaleLabel">Schwarz-Weiß</span>
+      </label>
+      <label class="toggle-switch">
+          <input type="checkbox" id="glitchToggle">
+          <span class="slider round"></span>
+          <span class="toggle-label" data-i18n="glitchLabel">Glitched</span>
+      </label>
+      <label class="toggle-switch">
+          <input type="checkbox" id="pixelateToggle">
+          <span class="slider round"></span>
+          <span class="toggle-label" data-i18n="pixelateLabel">Verschwommen</span>
+      </label>
+      <label class="toggle-switch">
+          <input type="checkbox" id="invertToggle">
+          <span class="slider round"></span>
+          <span class="toggle-label" data-i18n="invertLabel">Invertiert</span>
+      </label>
+
+      <!-- Timer Label -->
       <label for="timeSelect" id="timer-label">
         <span data-i18n="timeLabel">Anzeigedauer:</span>
         <select id="timeSelect">
@@ -90,10 +130,13 @@
           <option value="Infinity" selected>∞</option>
         </select>
       </label>
+
+      <!-- Zurück Button -->
       <button id="backToStartBtn" style="margin-left:1.2rem;" type="button">
         <span data-i18n="backToStartBtn">Zurück</span>
       </button>
-    </div>
+    </div> <!-- Ende #controls -->
+
     <div id="quiz">
       <div id="flag-container">
         <img id="flag" src="" alt="">
@@ -104,9 +147,12 @@
       <button id="nextBtn"><span data-i18n="nextBtn">Nächste Flagge</span></button>
       <div id="result"></div>
     </div>
+
     <div style="margin: 1rem 0;">
       <button id="showFlagListBtn"><span data-i18n="flagListBtn">Flaggenliste anzeigen</span></button>
     </div>
+
+    <!-- Flaggenliste Modal (unverändert) -->
     <div id="flag-list-modal" class="flag-list-modal" style="display:none;">
       <div class="flag-list-modal-backdrop" id="modal-backdrop"></div>
       <div class="flag-list-modal-content">
@@ -126,7 +172,6 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        // Wichtig: Der Pfad '/service-worker.js' bezieht sich auf das Root-Verzeichnis der Website
         navigator.serviceWorker.register('/service-worker.js')
           .then(registration => {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
@@ -142,3 +187,4 @@
 
 </body>
 </html>
+<!-- END OF FILE index.html -->
