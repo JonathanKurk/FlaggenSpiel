@@ -36,43 +36,49 @@
       <div class="start-step" id="step-mode" style="display:none;">
         <h2 id="choose-mode-label">Modus wählen</h2>
         <div class="mode-select-buttons">
+          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="all">
             <span class="continent-abbr">ALL</span>
-            🌍 <span data-i18n="modeAll">Alle Länder</span>
+            <span data-i18n="modeAll">Alle Länder</span>
           </button>
+          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="Europe">
             <span class="continent-abbr">EU</span>
-            🇪🇺 <span data-i18n="modeEurope">Nur Europa</span>
+            <span data-i18n="modeEurope">Nur Europa</span>
           </button>
+          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="Asia">
             <span class="continent-abbr">AS</span>
-            🌏 <span data-i18n="modeAsia">Nur Asien</span>
+            <span data-i18n="modeAsia">Nur Asien</span>
           </button>
+          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="Africa">
             <span class="continent-abbr">AF</span>
-            🌍 <span data-i18n="modeAfrica">Nur Afrika</span>
+            <span data-i18n="modeAfrica">Nur Afrika</span>
           </button>
+          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="South America">
             <span class="continent-abbr">SA</span>
-            🌎 <span data-i18n="modeSouthAmerica">Nur Südamerika</span>
+            <span data-i18n="modeSouthAmerica">Nur Südamerika</span>
           </button>
+          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="North America">
             <span class="continent-abbr">NA</span>
-            🌎 <span data-i18n="modeNorthAmerica">Nur Nordamerika</span>
+            <span data-i18n="modeNorthAmerica">Nur Nordamerika</span>
           </button>
+          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="Oceania">
             <span class="continent-abbr">OC</span>
-            🌊 <span data-i18n="modeOceania">Nur Australien & Ozeanien</span>
+            <span data-i18n="modeOceania">Nur Australien & Ozeanien</span>
           </button>
         </div>
 
-        <!-- ==== NEUER ZURÜCK-BUTTON (HIER EINGEFÜGT) ==== -->
+        <!-- Zurück-Button -->
         <div class="back-button-container" style="margin-top: 1.5rem; text-align: center;">
             <button id="backToLanguageBtn" class="back-btn-secondary" type="button">
                 <span data-i18n="backToLanguageBtn">Zurück zur Sprachauswahl</span>
             </button>
         </div>
-        <!-- ============================================== -->
 
       </div> <!-- Ende #step-mode -->
     </div>
@@ -173,8 +179,6 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        // Prüfe, ob die Datei existiert, bevor registriert wird
-        // (Einfacher Check, besser wäre Server-Side Logic oder Build-Step)
         fetch('/service-worker.js')
           .then(response => {
             if (response.ok) {
