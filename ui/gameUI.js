@@ -99,18 +99,20 @@ export function updateUI() {
     const name = language === 'de'
       ? (window.currentCountry.translations?.deu?.common || window.currentCountry.name?.common)
       : (window.currentCountry.name?.common || window.currentCountry.translations?.deu?.common);
-    document.getElementById('flag').alt = i18n[language].flagAlt(name || 'Unbekannt');
+    const flagEl = document.getElementById('flag');
+    if(flagEl) flagEl.alt = i18n[language].flagAlt(name || 'Unbekannt');
   }
 }
 
-// ---- NEU: Passt das UI basierend auf der Plattform an ----
+// ---- NEU/ANGEPASST: Passt das UI basierend auf der Plattform an ----
 export function updateUserInterfaceForPlatform() {
     console.log("Updating UI for platform:", userPlatform);
     const streakContainer = document.getElementById('streak-container');
-    const controlsDiv = document.getElementById('controls');
-    const mainElement = document.querySelector('main'); // Referenz zum Verschieben
+    const controlsDiv = document.getElementById('controls'); // Wo es im PC Layout VOR steht
+    const quizDiv = document.getElementById('quiz'); // Wo es im Android Layout ANS ENDE kommt
+    const mainElement = document.querySelector('main'); // Eltern-Element im PC Layout
 
-    if (!streakContainer || !controlsDiv || !mainElement) {
+    if (!streakContainer || !controlsDiv || !quizDiv || !mainElement) {
         console.warn("Cannot update UI for platform: Required elements not found.");
         return;
     }
@@ -118,22 +120,24 @@ export function updateUserInterfaceForPlatform() {
     // Setze Klasse am Body für CSS-Regeln
     if (userPlatform === 'android') {
         document.body.classList.add('platform-android');
-        // Verschiebe den Streak-Container AN DEN ANFANG der Controls
-        if (streakContainer.parentNode !== controlsDiv) {
-            console.log("Moving streak container into controls for Android layout.");
-            controlsDiv.insertBefore(streakContainer, controlsDiv.firstChild);
+        // Verschiebe den Streak-Container ANS ENDE des #quiz Divs
+        if (streakContainer.parentNode !== quizDiv) {
+            console.log("Moving streak container into #quiz for Android layout.");
+            quizDiv.appendChild(streakContainer); // Fügt es am Ende von #quiz hinzu
         }
     } else {
         // PC oder unbekannt -> Standardlayout sicherstellen
         document.body.classList.remove('platform-android');
-        // Verschiebe den Streak-Container ZURÜCK VOR die Controls (innerhalb von main)
-        if (streakContainer.parentNode === controlsDiv) {
-            console.log("Moving streak container out of controls for PC layout.");
+        // Verschiebe den Streak-Container ZURÜCK VOR die #controls (innerhalb von main)
+        if (streakContainer.parentNode !== mainElement || streakContainer.nextSibling !== controlsDiv) {
+           // Nur verschieben, wenn es nicht schon an der richtigen Stelle ist
+           // (z.B. wenn es noch im quizDiv ist)
+            console.log("Moving streak container back before #controls for PC layout.");
             mainElement.insertBefore(streakContainer, controlsDiv);
         }
     }
 
-    // Initialen Streak-Wert und Styling sicherstellen
+    // Initialen Streak-Wert und Styling sicherstellen (redundant, aber sicher)
     const streakEl = document.getElementById('winningStreak');
     if (streakEl) streakEl.textContent = currentStreak;
     if (streakContainer) {
@@ -163,22 +167,28 @@ export function loadNewFlag() {
   const nextBtn = document.getElementById('nextBtn');
 
   // UI-Reset
-  flagContainer.classList.remove('blackout');
-  flagBlackout.style.display = 'none';
-  flagImg.style.visibility = 'hidden';
-  flagImg.removeAttribute('src');
-  resultEl.textContent = '';
-  guessInput.value = '';
-  guessInput.disabled = true; // Warten bis Flagge geladen
-  submitBtn.disabled = true;
-  nextBtn.disabled = true;
+  if (flagContainer) flagContainer.classList.remove('blackout');
+  if (flagBlackout) flagBlackout.style.display = 'none';
+  if (flagImg) {
+      flagImg.style.visibility = 'hidden';
+      flagImg.removeAttribute('src');
+  }
+  if (resultEl) resultEl.textContent = '';
+  if (guessInput) {
+      guessInput.value = '';
+      guessInput.disabled = true; // Warten bis Flagge geladen
+  }
+  if (submitBtn) submitBtn.disabled = true;
+  if (nextBtn) nextBtn.disabled = true;
   applyEffects();
 
   // Land aus lokalem Array auswählen
   if (!countriesForGame || countriesForGame.length === 0) {
     console.error("loadNewFlag: No countries in local array!");
-    resultEl.textContent = "Fehler: Keine Länderdaten verfügbar.";
-    resultEl.style.color = 'red';
+    if(resultEl) {
+        resultEl.textContent = "Fehler: Keine Länderdaten verfügbar.";
+        resultEl.style.color = 'red';
+    }
     return;
   }
   const idx = Math.floor(Math.random() * countriesForGame.length);
@@ -190,45 +200,55 @@ export function loadNewFlag() {
   const nameForAlt = language === 'de'
       ? (country.translations?.deu?.common || country.name?.common)
       : (country.name?.common || country.translations?.deu?.common);
-  flagImg.alt = i18n[language].flagAlt(nameForAlt || 'Unbekannt');
+  if(flagImg) flagImg.alt = i18n[language].flagAlt(nameForAlt || 'Unbekannt');
   console.log("loadNewFlag: Selected country:", nameForAlt, country.flags?.svg);
 
   // Flaggenbild laden (via Service Worker für Offline-Cache)
   flagRevealQueued = true;
 
-  flagImg.onload = function () {
-    console.log("loadNewFlag: Flag loaded:", flagImg.src);
-    if (flagRevealQueued) {
-      flagImg.style.visibility = 'visible';
-      guessInput.disabled = false;
-      submitBtn.disabled = false;
-      applyTimerToCurrentFlag(); // Timer starten/anwenden
-      flagRevealQueued = false;
-      // KEIN automatischer Fokus mehr hier:
-      // guessInput.focus();
+  if(flagImg) { // Nur wenn Flaggenbild existiert
+    flagImg.onload = function () {
+      console.log("loadNewFlag: Flag loaded:", flagImg.src);
+      if (flagRevealQueued) {
+        flagImg.style.visibility = 'visible';
+        if (guessInput) guessInput.disabled = false;
+        if (submitBtn) submitBtn.disabled = false;
+        applyTimerToCurrentFlag(); // Timer starten/anwenden
+        flagRevealQueued = false;
+        // KEIN automatischer Fokus
+      }
+      flagImg.onload = null; // Listener entfernen
+    };
+
+    flagImg.onerror = function() {
+        console.error("loadNewFlag: Error loading flag image:", country.flags?.svg);
+        if(resultEl){
+            resultEl.textContent = "Fehler beim Laden der Flagge.";
+            resultEl.style.color = 'orange';
+        }
+        flagRevealQueued = false;
+        flagImg.onload = null;
+        flagImg.onerror = null;
+        setTimeout(loadNewFlag, 1000); // Nächste Flagge versuchen
     }
-    flagImg.onload = null; // Listener entfernen
-  };
 
-  flagImg.onerror = function() {
-      console.error("loadNewFlag: Error loading flag image:", country.flags?.svg);
-      resultEl.textContent = "Fehler beim Laden der Flagge.";
-      resultEl.style.color = 'orange';
-      flagRevealQueued = false;
-      flagImg.onload = null;
-      flagImg.onerror = null;
-      // Nächste Flagge versuchen, anstatt zu blockieren
-      setTimeout(loadNewFlag, 1000); // Kurze Pause
-  }
-
-  // URL setzen (löst onload oder onerror aus)
-  if (country.flags && country.flags.svg) {
-     flagImg.src = country.flags.svg;
+    // URL setzen (löst onload oder onerror aus)
+    if (country.flags && country.flags.svg) {
+       flagImg.src = country.flags.svg;
+    } else {
+       console.error("loadNewFlag: Missing flag SVG URL for country:", nameForAlt);
+       if(resultEl){
+           resultEl.textContent = "Fehler: Flaggen-URL fehlt.";
+           resultEl.style.color = 'red';
+       }
+       setTimeout(loadNewFlag, 1000); // Nächste Flagge versuchen
+    }
   } else {
-     console.error("loadNewFlag: Missing flag SVG URL for country:", nameForAlt);
-     resultEl.textContent = "Fehler: Flaggen-URL fehlt.";
-     resultEl.style.color = 'red';
-     setTimeout(loadNewFlag, 1000); // Nächste Flagge versuchen
+      console.error("loadNewFlag: Flag image element not found.");
+      if(resultEl){
+           resultEl.textContent = "Fehler: Flaggen-Element nicht gefunden.";
+           resultEl.style.color = 'red';
+       }
   }
 }
 
@@ -240,32 +260,33 @@ function applyTimerToCurrentFlag() {
     const flagBlackout = document.getElementById('flag-blackout');
     const nextBtn = document.getElementById('nextBtn');
 
-    // Nur weitermachen, wenn Flagge sichtbar ist
+    if (!flagImg || !flagContainer || !flagBlackout) {
+        console.warn("applyTimerToCurrentFlag: Flag elements not found.");
+        return;
+    }
+
     if (flagImg.style.visibility !== 'visible') {
        console.log("applyTimerToCurrentFlag: Flag not visible, doing nothing.");
-       if(nextBtn) nextBtn.disabled = false; // Sicherheitshalber aktivieren
+       if(nextBtn) nextBtn.disabled = false;
        return;
     }
 
     const timeValue = document.getElementById('timeSelect').value;
     if (timeValue !== "Infinity") {
-        // Timeout zum Ausblenden starten
         flagHideTimer = setTimeout(() => {
             blackoutActive = true;
             flagContainer.classList.add('blackout');
             flagBlackout.style.display = 'block';
             flagImg.style.visibility = 'hidden';
-            if(nextBtn) nextBtn.disabled = false; // Jetzt "Nächste" erlauben
+            if(nextBtn) nextBtn.disabled = false;
         }, Number(timeValue) * 1000);
-        // Während Timer läuft, ist "Nächste" deaktiviert
         if(nextBtn) nextBtn.disabled = true;
     } else {
-        // Unbegrenzte Anzeige
         blackoutActive = false;
         flagContainer.classList.remove('blackout');
         flagBlackout.style.display = 'none';
-        flagImg.style.visibility = 'visible'; // Sicherstellen
-        if(nextBtn) nextBtn.disabled = false; // "Nächste" sofort erlauben
+        flagImg.style.visibility = 'visible';
+        if(nextBtn) nextBtn.disabled = false;
     }
 }
 
@@ -282,11 +303,12 @@ function checkGuess() {
   const streakContainer = document.getElementById('streak-container');
   const winningStreakEl = document.getElementById('winningStreak');
 
-
   if (!currentCountryData) {
     console.error("checkGuess: currentCountry data is missing.");
-    resultEl.textContent = "Fehler: Interner Zustand ungültig.";
-    resultEl.style.color = 'red';
+    if(resultEl){
+        resultEl.textContent = "Fehler: Interner Zustand ungültig.";
+        resultEl.style.color = 'red';
+    }
     return;
   }
 
@@ -302,22 +324,23 @@ function checkGuess() {
   let streakIncreased = false;
 
   if (correct && input === correct) {
-    // Richtige Antwort
-    resultEl.textContent = i18n[language].correct;
-    resultEl.style.color = 'green';
-    setCurrentStreak(currentStreak + 1); // Nutzt Setter, der auch speichert & UI aktualisiert
+    if(resultEl){
+        resultEl.textContent = i18n[language].correct;
+        resultEl.style.color = 'green';
+    }
+    setCurrentStreak(currentStreak + 1);
     streakIncreased = true;
   } else {
-    // Falsche Antwort
-    resultEl.textContent = i18n[language].wrong(correctNameForDisplay || 'Unbekannt');
-    resultEl.style.color = 'red';
-    setCurrentStreak(0); // Nutzt Setter, der auch speichert & UI aktualisiert
+    if(resultEl){
+        resultEl.textContent = i18n[language].wrong(correctNameForDisplay || 'Unbekannt');
+        resultEl.style.color = 'red';
+    }
+    setCurrentStreak(0);
   }
 
   // Update der Anzeige und Animation für den Streak
   if (winningStreakEl && streakContainer) {
-      // Zahl wird bereits durch setCurrentStreak gesetzt
-      // Klasse für Farbe wird durch setCurrentStreak gesetzt
+      // Zahl und Farbe/Klasse werden bereits durch setCurrentStreak gesetzt
       // Nur Animation bei Erhöhung auslösen
       if (currentStreak > 0 && streakIncreased) {
           winningStreakEl.classList.add('streak-pulse');
@@ -328,12 +351,14 @@ function checkGuess() {
   }
   // -------------------------
 
-
   // Flagge wieder anzeigen, falls sie ausgeblendet war
-  if (blackoutActive) {
-    document.getElementById('flag-container').classList.remove('blackout');
-    document.getElementById('flag-blackout').style.display = 'none';
-    document.getElementById('flag').style.visibility = 'visible';
+  const flagContainerEl = document.getElementById('flag-container');
+  const flagBlackoutEl = document.getElementById('flag-blackout');
+  const flagImgEl = document.getElementById('flag');
+  if (blackoutActive && flagContainerEl && flagBlackoutEl && flagImgEl) {
+    flagContainerEl.classList.remove('blackout');
+    flagBlackoutEl.style.display = 'none';
+    flagImgEl.style.visibility = 'visible';
     blackoutActive = false;
   }
 
@@ -343,13 +368,13 @@ function checkGuess() {
   if(nextBtn) {
       nextBtn.disabled = false;
       // KEIN automatischer Fokus
-      // nextBtn.focus();
   }
 
   // Optional: Automatisch nächste Flagge nach 2 Sekunden
-  // Entferne oder kommentiere dies aus, wenn manuelles Klicken gewünscht ist
    setTimeout(() => {
-      if (resultEl.textContent !== '') { // Nur wenn eine Antwort gegeben wurde
+      // Prüfe, ob das Ergebnis-Element noch existiert und Text enthält
+      const currentResultEl = document.getElementById('result');
+      if (currentResultEl && currentResultEl.textContent !== '') {
           loadNewFlag();
       }
   }, 2000);
@@ -360,6 +385,7 @@ function applyEffects() {
   const ctr = document.getElementById('flag-container');
   if (!ctr) return;
   ctr.classList.remove('grayscale', 'glitch', 'pixelate', 'invert');
+  // Prüfe Existenz der Checkboxen, bevor auf checked zugegriffen wird
   if (document.getElementById('grayscaleToggle')?.checked) ctr.classList.add('grayscale');
   if (document.getElementById('invertToggle')?.checked) ctr.classList.add('invert');
   if (document.getElementById('pixelateToggle')?.checked) ctr.classList.add('pixelate');
