@@ -7,7 +7,7 @@
 
   <!-- PWA Meta Tags & Manifest Link -->
   <meta name="theme-color" content="#2060e0"/>
-  <link rel="icon" href="icons/icon-72x72.png" type="image/png"> <!-- Favicon hinzugefügt -->
+  <link rel="icon" href="icons/icon-72x72.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
 
@@ -18,76 +18,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Start Screen Overlay -->
-  <div id="start-screen">
-    <div class="start-content">
-      <h1 id="start-title">Flaggen-Ratespiel</h1>
+  <!-- Start Screen Overlay (unverändert) -->
+  <div id="start-screen">...</div>
 
-      <!-- Sprachauswahl -->
-      <div class="start-step" id="step-language">
-        <h2>Sprache wählen</h2>
-        <div class="lang-select-buttons">
-          <button class="lang-select-btn" data-lang="de">Deutsch</button>
-          <button class="lang-select-btn" data-lang="en">English</button>
-        </div>
-      </div>
-
-      <!-- Modusauswahl -->
-      <div class="start-step" id="step-mode" style="display:none;">
-        <h2 id="choose-mode-label">Modus wählen</h2>
-        <div class="mode-select-buttons">
-          <button class="mode-select-btn" data-mode="all">
-            <span class="continent-abbr">ALL</span>
-            <span data-i18n="modeAll">Alle Länder</span>
-          </button>
-          <button class="mode-select-btn" data-mode="Europe">
-            <span class="continent-abbr">EU</span>
-            <span data-i18n="modeEurope">Nur Europa</span>
-          </button>
-          <button class="mode-select-btn" data-mode="Asia">
-            <span class="continent-abbr">AS</span>
-            <span data-i18n="modeAsia">Nur Asien</span>
-          </button>
-          <button class="mode-select-btn" data-mode="Africa">
-            <span class="continent-abbr">AF</span>
-            <span data-i18n="modeAfrica">Nur Afrika</span>
-          </button>
-          <button class="mode-select-btn" data-mode="South America">
-            <span class="continent-abbr">SA</span>
-            <span data-i18n="modeSouthAmerica">Nur Südamerika</span>
-          </button>
-          <button class="mode-select-btn" data-mode="North America">
-            <span class="continent-abbr">NA</span>
-            <span data-i18n="modeNorthAmerica">Nur Nordamerika</span>
-          </button>
-          <button class="mode-select-btn" data-mode="Oceania">
-            <span class="continent-abbr">OC</span>
-            <span data-i18n="modeOceania">Nur Australien & Ozeanien</span>
-          </button>
-        </div>
-
-        <!-- Zurück-Button -->
-        <div class="back-button-container" style="margin-top: 1.5rem; text-align: center;">
-            <button id="backToLanguageBtn" class="back-btn-secondary" type="button">
-                <span data-i18n="backToLanguageBtn">Zurück zur Sprachauswahl</span>
-            </button>
-        </div>
-
-      </div> <!-- Ende #step-mode -->
-    </div>
-  </div> <!-- Ende #start-screen -->
-
-  <!-- Plattformauswahl-Modal -->
-  <div id="platform-select-modal" class="platform-modal" style="display: none;">
-    <div class="platform-modal-content">
-      <h2>Auf welchem Gerät spielst du?</h2>
-      <p>Diese Einstellung beeinflusst das Layout leicht.</p>
-      <div class="platform-modal-buttons">
-        <button data-platform="pc">💻 PC / Desktop</button>
-        <button data-platform="android">📱 Android / Mobil</button>
-      </div>
-    </div>
-  </div>
+  <!-- Plattformauswahl-Modal (unverändert) -->
+  <div id="platform-select-modal" ...>...</div>
 
   <!-- Haupt-Spielbereich -->
   <main style="display:none;">
@@ -98,7 +33,7 @@
       <span id="winningStreak">0</span>
     </div>
 
-    <!-- HIER WURDE DER CONTAINER EINGEFÜGT -->
+    <!-- HIER WIRD DER BUTTON VERSCHOBEN -->
     <div id="controls">
       <!-- Sprachauswahl -->
       <select id="languageSelect">
@@ -106,49 +41,31 @@
         <option value="en">English</option>
       </select>
 
-      <!-- ==== NEUER CONTAINER FÜR TOGGLES ==== -->
+      <!-- Toggle-Container -->
       <div id="toggle-switches-container">
-        <label class="toggle-switch">
-            <input type="checkbox" id="grayscaleToggle">
-            <span class="slider round"></span>
-            <span class="toggle-label" data-i18n="grayscaleLabel">Schwarz-Weiß</span>
-        </label>
-        <label class="toggle-switch">
-            <input type="checkbox" id="glitchToggle">
-            <span class="slider round"></span>
-            <span class="toggle-label" data-i18n="glitchLabel">Glitched</span>
-        </label>
-        <label class="toggle-switch">
-            <input type="checkbox" id="pixelateToggle">
-            <span class="slider round"></span>
-            <span class="toggle-label" data-i18n="pixelateLabel">Verschwommen</span>
-        </label>
-        <label class="toggle-switch">
-            <input type="checkbox" id="invertToggle">
-            <span class="slider round"></span>
-            <span class="toggle-label" data-i18n="invertLabel">Invertiert</span>
-        </label>
+        <label class="toggle-switch">...</label>
+        <label class="toggle-switch">...</label>
+        <label class="toggle-switch">...</label>
+        <label class="toggle-switch">...</label>
       </div>
-      <!-- ==================================== -->
 
       <!-- Timer Label -->
       <label for="timeSelect" id="timer-label">
         <span data-i18n="timeLabel">Anzeigedauer:</span>
-        <select id="timeSelect">
-          <option value="0.1">0,1s</option>
-          <option value="1">1s</option>
-          <option value="2">2s</option>
-          <option value="3">3s</option>
-          <option value="5">5s</option>
-          <option value="10">10s</option>
-          <option value="Infinity" selected>∞</option>
-        </select>
+        <select id="timeSelect">...</select>
       </label>
 
+      <!-- ==== Flaggenliste Button HIER EINFÜGEN ==== -->
+      <button id="showFlagListBtn" type="button">
+          <span data-i18n="flagListBtn">Flaggenliste anzeigen</span>
+      </button>
+      <!-- ========================================= -->
+
       <!-- Zurück Button -->
-      <button id="backToStartBtn" type="button"> <!-- style entfernt -->
+      <button id="backToStartBtn" type="button">
         <span data-i18n="backToStartBtn">Zurück</span>
       </button>
+
     </div> <!-- Ende #controls -->
 
 
@@ -163,49 +80,16 @@
       <div id="result"></div>
     </div>
 
-    <div style="margin: 1rem 0;">
-      <button id="showFlagListBtn"><span data-i18n="flagListBtn">Flaggenliste anzeigen</span></button>
-    </div>
+    <!-- Dieser Div wird jetzt nicht mehr benötigt -->
+    <!-- <div style="margin: 1rem 0;">...</div> -->
 
-    <!-- Flaggenliste Modal -->
-    <div id="flag-list-modal" class="flag-list-modal" style="display:none;">
-      <div class="flag-list-modal-backdrop" id="modal-backdrop"></div>
-      <div class="flag-list-modal-content">
-        <button id="closeFlagList" class="close-flag-list">×</button>
-        <h3 data-i18n="flagListTitle">Alle Flaggen</h3>
-        <div id="flagListContent"></div>
-      </div>
-    </div>
+    <!-- Flaggenliste Modal (unverändert) -->
+    <div id="flag-list-modal" ...>...</div>
   </main>
 
+  <!-- Skripte und Service Worker (unverändert) -->
   <script type="module" src="script.js"></script>
-
-  <!-- Service Worker Registrierung -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        fetch('/service-worker.js') // Pfad relativ zum Root
-          .then(response => {
-            if (response.ok) {
-              navigator.serviceWorker.register('/service-worker.js') // Pfad relativ zum Root
-                .then(registration => {
-                  console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                })
-                .catch(err => {
-                  console.log('ServiceWorker registration failed: ', err);
-                });
-            } else {
-                console.log('service-worker.js not found (status:', response.status,'), skipping registration.');
-            }
-          })
-          .catch(err => {
-            console.log('Error checking for service-worker.js:', err);
-          });
-      });
-    } else {
-      console.log('Service workers are not supported.');
-    }
-  </script>
+  <script>...</script>
 
 </body>
 </html>
