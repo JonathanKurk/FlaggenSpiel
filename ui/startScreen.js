@@ -5,51 +5,54 @@ import { countries, selectedMode, setGameCountries, setSelectedMode, setLanguage
 import { setupGameForSelectedOptions } from './gameUI.js'; // updateUI wird von setupGameForSelectedOptions aufgerufen
 
 export function initStartScreen() {
-  console.log("initStartScreen called"); // Debug log: Wird diese Funktion überhaupt aufgerufen?
+  console.log("initStartScreen called");
 
-  // Sprachauswahl
   const langBtns = document.querySelectorAll('.lang-select-btn');
-  console.log(`Found ${langBtns.length} language buttons.`); // Debug log: Werden Buttons gefunden?
+  console.log(`Found ${langBtns.length} language buttons.`);
   if (langBtns.length === 0) {
       console.error("FEHLER: Keine Sprachauswahl-Buttons mit Klasse '.lang-select-btn' gefunden!");
   }
 
   for (const btn of langBtns) {
     const lang = btn.dataset.lang;
-    console.log(`Adding listener to language button: ${lang}`); // Debug log: Listener hinzugefügt?
-    btn.addEventListener('click', () => {
-      console.log(`--- Language button clicked: ${lang} ---`); // Debug log: Klick registriert?
+    console.log(`Adding listener to language button: ${lang}`);
+    btn.addEventListener('click', (event) => { // event hinzugefügt
+      // ***** NEUE TESTAUSGABEN *****
+      console.log(`--- Language button clicked: ${lang} ---`);
+      alert(`Sprache ${lang} geklickt!`); // Direkte Bestätigung
+      btn.style.border = "3px solid red"; // Visuelle Bestätigung am Button
+      // ****************************
+
       try {
           setLanguage(lang);
-          console.log(`setLanguage called successfully for ${lang}`); // Debug log
+          console.log(`setLanguage called successfully for ${lang}`);
 
           updateStartScreenI18n();
-          console.log("updateStartScreenI18n called successfully"); // Debug log
+          console.log("updateStartScreenI18n called successfully");
 
           const stepLang = document.getElementById('step-language');
           if (stepLang) {
               stepLang.style.display = 'none';
-              console.log("Hid #step-language (style.display='none')"); // Debug log
+              console.log("Attempted to hide #step-language (style.display='none')"); // Geändert: Attempted
           } else {
               console.error("FEHLER: Element #step-language nicht gefunden!");
           }
 
           const stepMode = document.getElementById('step-mode');
           if (stepMode) {
-              // Explizit 'block' setzen, da es initial 'none' hat
-              stepMode.style.display = 'block';
-              console.log("Showed #step-mode (style.display='block')"); // Debug log
+              stepMode.style.display = 'block'; // Sicherstellen, dass 'block' gesetzt wird
+              console.log("Attempted to show #step-mode (style.display='block')"); // Geändert: Attempted
           } else {
               console.error("FEHLER: Element #step-mode nicht gefunden!");
           }
           console.log("--- Language button click handler finished ---");
 
       } catch (error) {
-          console.error("FEHLER im Language Button Click Handler:", error); // Debug log bei Fehlern
+          console.error("FEHLER im Language Button Click Handler:", error);
       }
     });
   }
-  updateStartScreenI18n(); // Initiales Setzen der Texte
+  updateStartScreenI18n();
 
   // Modusauswahl (Listeners bleiben gleich)
   const modeBtns = document.querySelectorAll('.mode-select-btn');
