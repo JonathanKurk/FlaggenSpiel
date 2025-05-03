@@ -89,7 +89,7 @@ main h1[data-i18n="title"] {
   justify-content: center; /* Zentriert die Control-Gruppen horizontal */
   gap: 1rem 1.5rem; /* Abstand zwischen den Elementen/Gruppen */
   margin-bottom: 2.1rem;
-  align-items: center; /* Zentriert Elemente vertikal in ihrer Zeile */
+  align-items: center; /* Zentriert Elemente vertikal in ihrer Zeile (PC) */
 }
 
 /* Standard-Styling für den neuen Toggle-Container (PC-Layout) */
@@ -193,14 +193,14 @@ button:hover, button:focus { background: var(--color-primary-hover); box-shadow:
 .flag-list-entry span.flag-list-no-svg-placeholder { width: 34px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8em; color: #aaa; background: #eee; border-radius: 4px; border: 1.1px solid #dde9ff; }
 .flag-list-countryname { font-weight: 500; font-size: 1.07em; max-width: 230px; overflow-x: auto; scrollbar-width: none; }
 .flag-list-countryname-sub { color: #859bbe; font-size: 0.96em; margin-left: 0.23em; font-weight: 400; }
-.flag-hover-popup.info-redesign { position: fixed; /* Wichtig für Positionierung */ z-index: 12000; padding: 1.2em 1.38em 1.09em 1.3em; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; background: #fff; border-radius: 18px; box-shadow: 0 7px 32px 0 rgba(20,44,105,0.19), 0 1.5px 10px 0 rgba(0,0,0,0.10); border: 1.5px solid #e5eeff; min-width: 250px; max-width: 530px; font-size: 1.065rem; gap: 1.15em; pointer-events: none; /* Damit es nicht selbst hover blockiert */ }
+.flag-hover-popup.info-redesign { position: fixed; z-index: 12000; padding: 1.2em 1.38em 1.09em 1.3em; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-start; background: #fff; border-radius: 18px; box-shadow: 0 7px 32px 0 rgba(20,44,105,0.19), 0 1.5px 10px 0 rgba(0,0,0,0.10); border: 1.5px solid #e5eeff; min-width: 250px; max-width: 530px; font-size: 1.065rem; gap: 1.15em; pointer-events: none; }
 .flag-hover-popup.info-redesign .flag-hover-img img { border-radius: 12px; box-shadow: 0 2.5px 10px rgba(48,98,180,0.10); width: 160px; height: 101px; object-fit: contain; background: #f1f6fd; margin-right: 0.5em; max-width: 180px; max-height: 112px; border: 1.2px solid #e7ecf7; }
 .flag-hover-popup.info-redesign .flag-hover-meta { min-width: 124px; max-width: 260px; display: flex; flex-direction: column; gap: 0.38em; align-items: flex-start; }
 .flag-hover-popup.info-redesign .flag-detail-row { margin-bottom: 0.05em; padding: 0.07em 0 0.06em 0; font-size: 1.06em; display: flex; flex-wrap: wrap; align-items: center; }
 .flag-hover-popup.info-redesign .flag-detail-row b { font-size: 1.17em; font-weight: 700; color: #1d47a8; letter-spacing: 0.01em; display: inline-block; margin-bottom: 0.06em; margin-top: 0.04em; word-break: break-word; max-width: 210px; }
-.flag-hover-popup.info-redesign .flag-detail-label { color: #3f5b88; font-weight: 500; min-width: 80px; margin-right: 0.41em; display: inline-block; flex-shrink: 0; /* Verhindert Schrumpfen */ }
-.flag-hover-popup.info-redesign .flag-detail-row span:not(.flag-detail-label):not(b) { color: #152640; font-weight: 450; letter-spacing: 0.01em; word-break: break-word; /* Erlaubt Umbruch bei langen Werten */ }
-@media (max-width: 728px) { .flag-hover-popup.info-redesign { max-width: 97vw; padding: 0.6em 0.4em 0.7em 0.6em; } .flag-hover-popup.info-redesign .flag-hover-img img { width: 96px; height: 61px; } .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 110px); /* Beispiel: Breite - Bild - Abstand */ } }
+.flag-hover-popup.info-redesign .flag-detail-label { color: #3f5b88; font-weight: 500; min-width: 80px; margin-right: 0.41em; display: inline-block; flex-shrink: 0; }
+.flag-hover-popup.info-redesign .flag-detail-row span:not(.flag-detail-label):not(b) { color: #152640; font-weight: 450; letter-spacing: 0.01em; word-break: break-word; }
+@media (max-width: 728px) { .flag-hover-popup.info-redesign { max-width: 97vw; padding: 0.6em 0.4em 0.7em 0.6em; } .flag-hover-popup.info-redesign .flag-hover-img img { width: 96px; height: 61px; } .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 110px); } }
 @media (max-width: 430px) { .flag-hover-popup.info-redesign .flag-hover-img img { width: 68px; height: 43px;} .flag-hover-popup.info-redesign { padding: 0.34em 0.2em 0.44em 0.22em; font-size: 0.95em;} .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 80px); } }
 
 /* START SCREEN */
@@ -215,12 +215,12 @@ button:hover, button:focus { background: var(--color-primary-hover); box-shadow:
 .lang-select-btn:hover, .lang-select-btn.active { background: var(--color-primary); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px 0 rgba(20,32,145,0.15); }
 .mode-select-btn { font-family: inherit; font-size: 1.08rem; padding: 0.89em 1.2em; border: none; border-radius: 13px; background: #f1f6ff; color: #19335C; font-weight: 600; display: flex; align-items: center; gap: 0.7em; justify-content: flex-start; box-shadow: 0 1px 7px 0 rgba(36,74,132,0.07); transition: all 0.14s ease-out; cursor: pointer; position: relative; overflow: hidden; }
 .mode-select-btn:hover, .mode-select-btn.active { background: var(--color-primary); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px 0 rgba(20,32,145,0.15); }
-.mode-select-btn .continent-abbr { font-weight: 700; font-size: 0.92em; background: #e2ebff; color: var(--color-primary); padding: 0.25em 0.5em; border-radius: 6px; transition: all 0.14s ease-out; flex-shrink: 0; /* Verhindert Schrumpfen */ }
+.mode-select-btn .continent-abbr { font-weight: 700; font-size: 0.92em; background: #e2ebff; color: var(--color-primary); padding: 0.25em 0.5em; border-radius: 6px; transition: all 0.14s ease-out; flex-shrink: 0; }
 .mode-select-btn:hover .continent-abbr, .mode-select-btn.active .continent-abbr { background: rgba(255,255,255,0.18); color: #fff; }
 @media (max-width: 600px) { .start-content { padding: 2.2rem 1.4rem 1.8rem; gap: 2.2rem; } #start-title { font-size: 2.2rem; } .start-step h2 { font-size: 1.3rem; margin-bottom: 1.2rem; } .mode-select-buttons { grid-template-columns: 1fr; gap: 0.7rem; } .mode-select-btn { padding: 0.75em 1em; font-size: 1.02rem; } .lang-select-buttons { gap: 0.9rem; } .lang-select-btn { font-size: 1.1rem; padding: 0.7em 0.4em; } }
 
 /* BACK TO START BUTTON (im Spiel) */
-#backToStartBtn { background: #e8edfc; color: #1b3b8a; border: 1.2px solid #c5d4f0; font-size: 1.03em; border-radius: 7px; font-weight: 600; /* margin-left entfernt, wird durch gap geregelt */ padding: 0.48em 1.2em; transition: background 0.16s, color 0.11s; }
+#backToStartBtn { background: #e8edfc; color: #1b3b8a; border: 1.2px solid #c5d4f0; font-size: 1.03em; border-radius: 7px; font-weight: 600; padding: 0.48em 1.2em; transition: background 0.16s, color 0.11s; }
 #backToStartBtn:hover, #backToStartBtn:focus { background: #cbe0fc; color: var(--color-primary-hover); }
 
 /* Styling für Back-Button im Startscreen */
@@ -246,8 +246,7 @@ button:hover, button:focus { background: var(--color-primary-hover); box-shadow:
 }
 
 /* FOOTER */
-footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5rem 2rem 0.5rem; font-size: 1.01rem; border-top: 1.5px solid #e0e6f0; display: none; /* Footer erstmal ausblenden */ }
-#impressum { max-width: 890px; margin: 0 auto; text-align: left; }
+footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5rem 2rem 0.5rem; font-size: 1.01rem; border-top: 1.5px solid #e0e6f0; display: none; }
 /* ... restliche Footer-Stile ... */
 #showFlagListBtn { border-radius: 8px; font-size: 1.03em; background: #e7eefd; color: #2040aa; font-weight: 600; border: 1.2px solid #d5def6; margin-top: 0.24em; margin-bottom: 0.07em; transition: background 0.13s, color 0.13s; }
 #showFlagListBtn:hover, #showFlagListBtn:focus { background: #d3e0fd; color: #1544aa; }
@@ -270,49 +269,61 @@ footer { margin-top: 3.2rem; background: var(--color-card); padding: 2.6rem 0.5r
 
 /* Haupt-Controls Container auf Android */
 body.platform-android #controls {
-    gap: 1.5rem; /* Etwas mehr vertikaler Abstand */
-    padding: 0 0.5rem; /* Etwas seitlicher Abstand */
-    flex-direction: column; /* ** ALLES untereinander für bessere Ordnung ** */
+    display: flex;
+    flex-direction: column;  /* Kinder untereinander */
+    align-items: stretch;   /* <<<< GEÄNDERT: Kinder strecken sich auf volle Breite (Standard) */
+                            /* oder align-items: flex-start; für strikte Linksbündigkeit */
+    gap: 1.5rem;
+    padding: 0 1rem; /* Mehr seitlicher Abstand */
+    width: 100%;
+    max-width: 450px; /* Behält die maximale Breite bei */
+    margin-left: auto;  /* Zentriert den Controls-Block weiterhin */
+    margin-right: auto;
 }
 
 /* Styling für den Toggle-Container NUR auf Android */
 body.platform-android #toggle-switches-container {
     display: flex;
     flex-direction: column; /* Toggles untereinander */
-    align-items: center;   /* Toggles horizontal zentrieren */
-    width: 100%;           /* Volle Breite */
+    align-items: flex-start; /* <<<< GEÄNDERT: Toggles linksbündig */
+    width: 100%;           /* Nimmt volle Breite innerhalb von #controls */
+    /* max-width entfernt, da nicht mehr für Zentrierung benötigt */
     gap: 0.8rem;           /* Vertikaler Abstand */
     order: 1;              /* Reihenfolge nach Sprache */
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+    padding-left: 0; /* Kein extra Einzug links */
 }
 
-/* Sicherstellen, dass die Toggles zentriert sind */
+/* Stellt sicher, dass Toggles die volle Breite nutzen können, wenn nötig */
 body.platform-android .toggle-switch {
-    width: fit-content; /* Breite an Inhalt anpassen */
-    /* justify-content: center; ist für inline-flex nicht nötig, wenn align-items im Parent gesetzt ist */
+    width: 100%; /* <<<< GEÄNDERT: Lässt Toggle volle Breite einnehmen */
+    justify-content: flex-start; /* Richtet Inhalt (Slider+Label) links aus */
+    /* width: fit-content; entfernt */
 }
 
 /* Reihenfolge der Elemente in #controls auf Android */
-body.platform-android #controls #languageSelect { order: 0; }
+body.platform-android #controls #languageSelect { order: 0; width: 100%; /* Nimmt volle Breite */ }
 /* toggle-switches-container hat order: 1 */
-body.platform-android #controls #timer-label { order: 2; }
-body.platform-android #controls #backToStartBtn { order: 3; }
+body.platform-android #controls #timer-label { order: 2; width: 100%; justify-content: flex-start; /* Stellt sicher, dass Inhalt links ist */ }
+body.platform-android #controls #backToStartBtn { order: 3; width: 100%; /* Nimmt volle Breite */ }
 
 
 /* Streak-Container auf Android (positioniert nach dem Quiz-Block) */
 body.platform-android main {
-    display: flex; /* Hauptbereich als Flexbox */
-    flex-direction: column; /* Haupt-Elemente untereinander */
-    align-items: center; /* Alles zentrieren */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Zentriert die Hauptblöcke wie Quiz */
 }
 body.platform-android #quiz {
-    /* Stellt sicher, dass der Quiz-Block nach #controls kommt */
-    order: 1; /* Nach #controls (default order 0) */
+    order: 1;
+    width: 100%;
+    max-width: 500px;
+    padding: 1.5rem 1rem;
 }
 body.platform-android #streak-container {
-     position: static; /* Nicht absolut */
-     order: 2;         /* Nach dem Quiz-Block */
+     position: static;
+     order: 2;
      width: auto;
      text-align: center;
      margin-top: 1.5rem;
