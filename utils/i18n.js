@@ -47,8 +47,9 @@ export const i18n = {
     modeNorthAmerica: "Nur Nordamerika",
     modeOceania: "Nur Australien & Ozeanien",
     chooseMode: "Modus wählen",
-    backToStartBtn: "Zurück",
-    chooseLang: "Sprache wählen"
+    backToStartBtn: "Zurück", // Text für den Button im Spiel
+    chooseLang: "Sprache wählen",
+    backToLanguageBtn: "Zurück zur Sprachauswahl" // NEUER Text
   },
   en: {
     title: 'Flag Guessing Game',
@@ -98,9 +99,8 @@ export const i18n = {
     modeNorthAmerica: "Only North America",
     modeOceania: "Only Australia & Oceania",
     chooseMode: "Choose mode",
-    backToStartBtn: "Back",
-    chooseLang: "Choose language"
+    backToStartBtn: "Back", // Text for the button in the game
+    chooseLang: "Choose language",
+    backToLanguageBtn: "Back to Language Select" // NEW text
   }
 };
-
-
