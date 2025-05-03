@@ -36,37 +36,30 @@
       <div class="start-step" id="step-mode" style="display:none;">
         <h2 id="choose-mode-label">Modus wählen</h2>
         <div class="mode-select-buttons">
-          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="all">
             <span class="continent-abbr">ALL</span>
             <span data-i18n="modeAll">Alle Länder</span>
           </button>
-          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="Europe">
             <span class="continent-abbr">EU</span>
             <span data-i18n="modeEurope">Nur Europa</span>
           </button>
-          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="Asia">
             <span class="continent-abbr">AS</span>
             <span data-i18n="modeAsia">Nur Asien</span>
           </button>
-          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="Africa">
             <span class="continent-abbr">AF</span>
             <span data-i18n="modeAfrica">Nur Afrika</span>
           </button>
-          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="South America">
             <span class="continent-abbr">SA</span>
             <span data-i18n="modeSouthAmerica">Nur Südamerika</span>
           </button>
-          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="North America">
             <span class="continent-abbr">NA</span>
             <span data-i18n="modeNorthAmerica">Nur Nordamerika</span>
           </button>
-          <!-- Emoji entfernt -->
           <button class="mode-select-btn" data-mode="Oceania">
             <span class="continent-abbr">OC</span>
             <span data-i18n="modeOceania">Nur Australien & Ozeanien</span>
@@ -105,31 +98,40 @@
       <span id="winningStreak">0</span>
     </div>
 
+    <!-- HIER WURDE DER CONTAINER EINGEFÜGT -->
     <div id="controls">
+      <!-- Sprachauswahl -->
       <select id="languageSelect">
         <option value="de">Deutsch</option>
         <option value="en">English</option>
       </select>
-      <label class="toggle-switch">
-          <input type="checkbox" id="grayscaleToggle">
-          <span class="slider round"></span>
-          <span class="toggle-label" data-i18n="grayscaleLabel">Schwarz-Weiß</span>
-      </label>
-      <label class="toggle-switch">
-          <input type="checkbox" id="glitchToggle">
-          <span class="slider round"></span>
-          <span class="toggle-label" data-i18n="glitchLabel">Glitched</span>
-      </label>
-      <label class="toggle-switch">
-          <input type="checkbox" id="pixelateToggle">
-          <span class="slider round"></span>
-          <span class="toggle-label" data-i18n="pixelateLabel">Verschwommen</span>
-      </label>
-      <label class="toggle-switch">
-          <input type="checkbox" id="invertToggle">
-          <span class="slider round"></span>
-          <span class="toggle-label" data-i18n="invertLabel">Invertiert</span>
-      </label>
+
+      <!-- ==== NEUER CONTAINER FÜR TOGGLES ==== -->
+      <div id="toggle-switches-container">
+        <label class="toggle-switch">
+            <input type="checkbox" id="grayscaleToggle">
+            <span class="slider round"></span>
+            <span class="toggle-label" data-i18n="grayscaleLabel">Schwarz-Weiß</span>
+        </label>
+        <label class="toggle-switch">
+            <input type="checkbox" id="glitchToggle">
+            <span class="slider round"></span>
+            <span class="toggle-label" data-i18n="glitchLabel">Glitched</span>
+        </label>
+        <label class="toggle-switch">
+            <input type="checkbox" id="pixelateToggle">
+            <span class="slider round"></span>
+            <span class="toggle-label" data-i18n="pixelateLabel">Verschwommen</span>
+        </label>
+        <label class="toggle-switch">
+            <input type="checkbox" id="invertToggle">
+            <span class="slider round"></span>
+            <span class="toggle-label" data-i18n="invertLabel">Invertiert</span>
+        </label>
+      </div>
+      <!-- ==================================== -->
+
+      <!-- Timer Label -->
       <label for="timeSelect" id="timer-label">
         <span data-i18n="timeLabel">Anzeigedauer:</span>
         <select id="timeSelect">
@@ -142,10 +144,13 @@
           <option value="Infinity" selected>∞</option>
         </select>
       </label>
-      <button id="backToStartBtn" style="margin-left:1.2rem;" type="button">
+
+      <!-- Zurück Button -->
+      <button id="backToStartBtn" type="button"> <!-- style entfernt -->
         <span data-i18n="backToStartBtn">Zurück</span>
       </button>
-    </div>
+    </div> <!-- Ende #controls -->
+
 
     <div id="quiz">
       <div id="flag-container">
@@ -179,10 +184,10 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        fetch('/service-worker.js')
+        fetch('/service-worker.js') // Pfad relativ zum Root
           .then(response => {
             if (response.ok) {
-              navigator.serviceWorker.register('/service-worker.js')
+              navigator.serviceWorker.register('/service-worker.js') // Pfad relativ zum Root
                 .then(registration => {
                   console.log('ServiceWorker registration successful with scope: ', registration.scope);
                 })
@@ -190,7 +195,7 @@
                   console.log('ServiceWorker registration failed: ', err);
                 });
             } else {
-                console.log('service-worker.js not found, skipping registration.');
+                console.log('service-worker.js not found (status:', response.status,'), skipping registration.');
             }
           })
           .catch(err => {
