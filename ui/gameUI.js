@@ -6,27 +6,25 @@ import {
   setCurrentCountry,
   language,
   setLanguage,
-  // === GEÄNDERT: Importiere winStreaks und selectedMode statt currentStreak ===
   winStreaks,
   selectedMode,
-  saveWinStreaks, // Funktion zum Speichern importieren
-  // === === === === === === === === === === === === === === === === === === ===
+  saveWinStreaks,
   userPlatform
 } from '../script.js';
 import { showFlagListModal } from './flagListModal.js';
-import { showStartScreen } from './startScreen.js';
+import { showStartScreen } from './startScreen.js'; // Import für den Zurück-Button
 
 let flagHideTimer = null;
 let blackoutActive = false;
 let flagRevealQueued = false;
 
-// --- NEU: Funktion zum Anzeigen des aktuellen Streaks ---
+// Funktion zum Anzeigen des aktuellen Streaks
 export function displayCurrentStreak() {
     const streakEl = document.getElementById('winningStreak');
     const streakContainer = document.getElementById('streak-container');
-    const currentModeStreak = winStreaks[selectedMode] || 0; // Hole Streak für aktuellen Modus
+    const currentModeStreak = winStreaks[selectedMode] || 0;
 
-    console.log(`Displaying streak for mode '${selectedMode}': ${currentModeStreak}`); // Debug Log
+    console.log(`Displaying streak for mode '${selectedMode}': ${currentModeStreak}`);
 
     if (streakEl) {
         streakEl.textContent = currentModeStreak;
@@ -43,12 +41,10 @@ export function displayCurrentStreak() {
          console.warn("Element #streak-container not found for class update.");
     }
 }
-// --- Ende neue Funktion ---
-
 
 // Setzt alle Event Listener für die UI-Elemente
 export function setupUIListeners() {
-  console.log("setupUIListeners called"); // Debug Log
+  console.log("setupUIListeners called");
   document.getElementById('submitBtn').addEventListener('click', checkGuess);
   document.getElementById('nextBtn').addEventListener('click', loadNewFlag);
   document.getElementById('grayscaleToggle').addEventListener('change', applyEffects);
@@ -57,9 +53,8 @@ export function setupUIListeners() {
   document.getElementById('invertToggle').addEventListener('change', applyEffects);
   document.getElementById('languageSelect').addEventListener('change', e => {
     setLanguage(e.target.value);
-    updateUI(); // UI-Texte aktualisieren
-    displayCurrentStreak(); // Streak neu anzeigen (Sprache ändert sich nicht, aber zur Sicherheit)
-    // Flaggenliste aktualisieren, falls offen
+    updateUI();
+    displayCurrentStreak();
     if (document.getElementById('flag-list-modal').style.display === 'block') {
       import('./flagListModal.js').then(mod => {
         mod.fillFlagListContent();
@@ -89,24 +84,29 @@ export function setupUIListeners() {
     document.getElementById('flag-list-modal').style.display = 'none';
   });
 
-  document.getElementById('backToStartBtn').addEventListener('click', showStartScreen);
+  // === HIER WURDE ES GEÄNDERT ===
+  document.getElementById('backToStartBtn').addEventListener('click', () => {
+      console.log("backToStartBtn (from game) clicked");
+      // Ruft showStartScreen ohne Argument auf, Standard ist jetzt 'mode'
+      showStartScreen();
+  });
+  // =============================
 
-  // Initialen Streak-Wert anzeigen (für den beim Start ausgewählten Modus)
+  // Initialen Streak-Wert anzeigen
   displayCurrentStreak();
 }
 
 // Initialisiert das Spiel nach Auswahl des Modus
 export function setupGameForSelectedOptions() {
-  console.log("setupGameForSelectedOptions called"); // Debug Log
+  console.log("setupGameForSelectedOptions called");
   document.getElementById('languageSelect').value = language;
   updateUI();
-  displayCurrentStreak(); // Wichtig: Zeige den Streak für den *jetzt* ausgewählten Modus
-  loadNewFlag(); // Lädt die erste Flagge
+  displayCurrentStreak();
+  loadNewFlag();
 }
 
 // Aktualisiert alle Texte der Benutzeroberfläche basierend auf der Sprache
 export function updateUI() {
-  // console.log("updateUI called"); // Kann sehr gesprächig sein
   document.documentElement.lang = language;
   document.querySelector('h1[data-i18n="title"]').textContent = i18n[language].title;
   document.getElementById('guessInput').placeholder = i18n[language].placeholder;
@@ -121,8 +121,7 @@ export function updateUI() {
   const flagListTitle = document.querySelector('[data-i18n="flagListTitle"]');
   if (flagListTitle) flagListTitle.textContent = i18n[language].flagListTitle;
   document.querySelector('[data-i18n="winStreak"]').textContent = i18n[language].winStreak; // Label
-  document.querySelector('[data-i18n="backToStartBtn"]').textContent = i18n[language].backToStartBtn;
-  // Aktualisiert den Alt-Text, wenn eine Flagge angezeigt wird
+  document.querySelector('[data-i18n="backToStartBtn"]').textContent = i18n[language].backToStartBtn; // Text für den Button im Spiel
   if (window.currentCountry) {
     const name = language === 'de'
       ? (window.currentCountry.translations?.deu?.common || window.currentCountry.name?.common)
@@ -158,7 +157,6 @@ export function updateUserInterfaceForPlatform() {
            mainElement.insertBefore(streakContainer, controlsDiv);
         }
     }
-    // Stelle sicher, dass der Streak-Wert korrekt angezeigt wird
     displayCurrentStreak();
 }
 
@@ -177,13 +175,12 @@ export function loadNewFlag() {
   const submitBtn = document.getElementById('submitBtn');
   const nextBtn = document.getElementById('nextBtn');
 
-  // UI-Reset
   if (flagContainer) flagContainer.classList.remove('blackout');
   if (flagBlackout) flagBlackout.style.display = 'none';
   if (flagImg) {
       flagImg.style.visibility = 'hidden';
-      flagImg.removeAttribute('src'); // Wichtig: src entfernen, um "broken image" zu vermeiden
-      flagImg.alt = ''; // Alt-Text leeren bis neu gesetzt
+      flagImg.removeAttribute('src');
+      flagImg.alt = '';
   }
   if (resultEl) resultEl.textContent = '';
   if (guessInput) {
@@ -192,47 +189,40 @@ export function loadNewFlag() {
   }
   if (submitBtn) submitBtn.disabled = true;
   if (nextBtn) nextBtn.disabled = true;
-  applyEffects(); // Effekte zurücksetzen/anwenden
+  applyEffects();
 
-  // Land auswählen
   if (!countriesForGame || countriesForGame.length === 0) {
     console.error("loadNewFlag: No countries in countriesForGame array!");
     if(resultEl) {
         resultEl.textContent = "Fehler: Keine Länder für diesen Modus verfügbar.";
         resultEl.style.color = 'red';
     }
-    // TODO: Maybe show start screen again?
     return;
   }
   const idx = Math.floor(Math.random() * countriesForGame.length);
   const country = countriesForGame[idx];
-  setCurrentCountry(country); // Setzt globalen State in script.js
-  // window.currentCountry = country; // Alias beibehalten (optional)
+  setCurrentCountry(country);
 
-  // Namen für Alt-Text
   const nameForAlt = language === 'de'
       ? (country.translations?.deu?.common || country.name?.common)
       : (country.name?.common || country.translations?.deu?.common);
   if(flagImg) flagImg.alt = i18n[language].flagAlt(nameForAlt || 'Unbekannt');
   console.log("loadNewFlag: Selected country:", nameForAlt, country.flags?.svg);
 
-  // Flagge laden
   flagRevealQueued = true;
   if(flagImg && country.flags && country.flags.svg) {
     flagImg.onload = function () {
       console.log("loadNewFlag: Flag loaded:", flagImg.src);
-      if (flagRevealQueued) { // Nur fortfahren, wenn dies noch die erwartete Flagge ist
+      if (flagRevealQueued) {
         flagImg.style.visibility = 'visible';
         if (guessInput) guessInput.disabled = false;
         if (submitBtn) submitBtn.disabled = false;
         applyTimerToCurrentFlag();
         flagRevealQueued = false;
-        // Kein Fokus hier, User soll selbst entscheiden
       }
-      flagImg.onload = null; // Listener entfernen
+      flagImg.onload = null;
       flagImg.onerror = null;
     };
-
     flagImg.onerror = function() {
         console.error("loadNewFlag: Error loading flag image:", flagImg.src);
         if(resultEl){
@@ -242,13 +232,10 @@ export function loadNewFlag() {
         flagRevealQueued = false;
         flagImg.onload = null;
         flagImg.onerror = null;
-        // Nächste Flagge versuchen nach kurzer Pause
-        if(nextBtn) nextBtn.disabled = false; // Erlaube manuelle Weitergabe
+        if(nextBtn) nextBtn.disabled = false;
         setTimeout(loadNewFlag, 1500);
     }
-    // Setze die Quelle, um Laden auszulösen
     flagImg.src = country.flags.svg;
-
   } else {
       console.error("loadNewFlag: Flag image element or flag SVG URL missing.", {flagImgExists: !!flagImg, svgUrl: country?.flags?.svg});
       if(resultEl){
@@ -256,12 +243,9 @@ export function loadNewFlag() {
            resultEl.style.color = 'red';
        }
       flagRevealQueued = false;
-      if(nextBtn) nextBtn.disabled = false; // Erlaube manuelle Weitergabe
-      // Evtl. automatisch nächste Flagge laden?
-      // setTimeout(loadNewFlag, 1500);
+      if(nextBtn) nextBtn.disabled = false;
   }
 }
-
 
 // Wendet den eingestellten Timer auf die aktuell sichtbare Flagge an
 function applyTimerToCurrentFlag() {
@@ -271,41 +255,37 @@ function applyTimerToCurrentFlag() {
     const flagBlackout = document.getElementById('flag-blackout');
     const nextBtn = document.getElementById('nextBtn');
 
-    // Elemente prüfen
     if (!flagImg || !flagContainer || !flagBlackout || !nextBtn) {
         console.warn("applyTimerToCurrentFlag: Flag elements or next button not found.");
         return;
     }
-    // Prüfen, ob die Flagge überhaupt sichtbar ist (relevant falls loadNewFlag gerade läuft)
     if (flagImg.style.visibility !== 'visible') {
        console.log("applyTimerToCurrentFlag: Flag not visible yet, timer not started.");
-       nextBtn.disabled = false; // Nächste-Button sollte nutzbar sein
+       nextBtn.disabled = false;
        return;
     }
 
     const timeValue = document.getElementById('timeSelect').value;
     if (timeValue !== "Infinity") {
-        console.log(`Applying timer: ${timeValue}s`); // Debug Log
+        console.log(`Applying timer: ${timeValue}s`);
         flagHideTimer = setTimeout(() => {
             blackoutActive = true;
             flagContainer.classList.add('blackout');
             flagBlackout.style.display = 'block';
             flagImg.style.visibility = 'hidden';
-            nextBtn.disabled = false; // Nächste Flagge kann jetzt geladen werden
-            console.log("Timer finished, flag hidden."); // Debug Log
+            nextBtn.disabled = false;
+            console.log("Timer finished, flag hidden.");
         }, Number(timeValue) * 1000);
-        nextBtn.disabled = true; // Während Timer läuft, nicht zur nächsten Flagge
+        nextBtn.disabled = true;
     } else {
-        // Timer ist "Unendlich", stelle sicher, dass Flagge sichtbar ist
-        console.log("Timer set to Infinity, ensuring flag is visible."); // Debug Log
+        console.log("Timer set to Infinity, ensuring flag is visible.");
         blackoutActive = false;
         flagContainer.classList.remove('blackout');
         flagBlackout.style.display = 'none';
-        flagImg.style.visibility = 'visible'; // Redundant, aber sicher
-        nextBtn.disabled = false; // Nächste Flagge kann geladen werden
+        flagImg.style.visibility = 'visible';
+        nextBtn.disabled = false;
     }
 }
-
 
 // Überprüft die Benutzereingabe
 function checkGuess() {
@@ -315,9 +295,8 @@ function checkGuess() {
   const resultEl = document.getElementById('result');
   const submitBtn = document.getElementById('submitBtn');
   const nextBtn = document.getElementById('nextBtn');
-  const winningStreakEl = document.getElementById('winningStreak'); // Nur das Element
+  const winningStreakEl = document.getElementById('winningStreak');
 
-  // Prüfen, ob Elemente vorhanden sind
   if (!guessInput || !resultEl || !submitBtn || !nextBtn || !winningStreakEl || !window.currentCountry) {
        console.error("checkGuess: Required elements or currentCountry data missing!");
        if(resultEl) resultEl.textContent = "Interner Fehler!";
@@ -327,7 +306,6 @@ function checkGuess() {
   const input = guessInput.value.trim().toLowerCase();
   const currentCountryData = window.currentCountry;
 
-  // Namen ermitteln
   const correctDe = currentCountryData.translations?.deu?.common?.toLowerCase();
   const correctEn = currentCountryData.name?.common?.toLowerCase();
   const correct = language === 'de' ? correctDe : correctEn;
@@ -335,40 +313,34 @@ function checkGuess() {
       ? (currentCountryData.translations?.deu?.common || currentCountryData.name?.common)
       : (currentCountryData.name?.common || currentCountryData.translations?.deu?.common);
 
-  // --- Streak Logik (angepasst) ---
   let streakIncreased = false;
-  const currentModeStreak = winStreaks[selectedMode] || 0; // Aktuellen Streak holen
+  const currentModeStreak = winStreaks[selectedMode] || 0;
 
   if (correct && input === correct) {
     resultEl.textContent = i18n[language].correct;
     resultEl.style.color = 'green';
-    // Streak im Objekt erhöhen und speichern
     winStreaks[selectedMode] = currentModeStreak + 1;
     saveWinStreaks();
     streakIncreased = true;
-    console.log(`Correct guess! Streak for ${selectedMode} is now ${winStreaks[selectedMode]}`); // Debug
+    console.log(`Correct guess! Streak for ${selectedMode} is now ${winStreaks[selectedMode]}`);
   } else {
     resultEl.textContent = i18n[language].wrong(correctNameForDisplay || 'Unbekannt');
     resultEl.style.color = 'red';
-    // Streak im Objekt zurücksetzen und speichern
-    if (currentModeStreak > 0) { // Nur loggen/speichern wenn nötig
+    if (currentModeStreak > 0) {
        winStreaks[selectedMode] = 0;
        saveWinStreaks();
-       console.log(`Wrong guess! Streak for ${selectedMode} reset to 0`); // Debug
+       console.log(`Wrong guess! Streak for ${selectedMode} reset to 0`);
     }
   }
 
-  // Update der Anzeige und Animation für den Streak
-  displayCurrentStreak(); // Aktualisiert Zahl und Klasse
-  if (streakIncreased && (winStreaks[selectedMode] || 0) > 0) { // Nur animieren, wenn erhöht UND > 0
+  displayCurrentStreak();
+  if (streakIncreased && (winStreaks[selectedMode] || 0) > 0) {
       winningStreakEl.classList.add('streak-pulse');
       setTimeout(() => {
           winningStreakEl.classList.remove('streak-pulse');
       }, 400);
   }
-  // --- Ende Streak Logik ---
 
-  // Flagge wieder anzeigen, falls versteckt
   const flagContainerEl = document.getElementById('flag-container');
   const flagBlackoutEl = document.getElementById('flag-blackout');
   const flagImgEl = document.getElementById('flag');
@@ -377,33 +349,33 @@ function checkGuess() {
     flagBlackoutEl.style.display = 'none';
     flagImgEl.style.visibility = 'visible';
     blackoutActive = false;
-    console.log("Revealed flag after guess."); // Debug Log
+    console.log("Revealed flag after guess.");
   }
 
-  // UI für nächste Runde
   submitBtn.disabled = true;
   guessInput.disabled = true;
   nextBtn.disabled = false;
-  // Kein Fokus auf Next-Button
 
-  // Optional: Automatisch nächste Flagge
    const autoNextTimeout = setTimeout(() => {
-      // Erneutes Holen des Elements, falls es inzwischen entfernt wurde
       const currentResultEl = document.getElementById('result');
-      if (currentResultEl && currentResultEl.textContent !== '') { // Nur wenn noch eine Antwort angezeigt wird
-          console.log("Auto-loading next flag."); // Debug Log
+      if (currentResultEl && currentResultEl.textContent !== '') {
+          console.log("Auto-loading next flag.");
           loadNewFlag();
       } else {
-          console.log("Auto-next cancelled, result cleared or element gone."); // Debug Log
+          console.log("Auto-next cancelled, result cleared or element gone.");
       }
-  }, 2000); // 2 Sekunden warten
+  }, 2000);
 
-  // Wenn User manuell auf "Next" klickt, Auto-Next abbrechen
-  nextBtn.onclick = () => {
+  // WICHTIG: Der onclick muss immer neu gesetzt werden, da loadNewFlag den Button-Status ändert
+  // Besser: Einen persistenten Listener in setupUIListeners verwenden und dort den Timeout löschen
+  // Für jetzt lassen wir es so, aber es ist nicht ideal.
+  const nextBtnClickHandler = () => {
       clearTimeout(autoNextTimeout);
       loadNewFlag();
-      nextBtn.onclick = null; // Listener wieder entfernen
+      nextBtn.removeEventListener('click', nextBtnClickHandler); // Listener entfernen nach Klick
   };
+  nextBtn.addEventListener('click', nextBtnClickHandler);
+
 }
 
 // Wendet die visuellen Effekte an
@@ -416,7 +388,6 @@ function applyEffects() {
       pixelate: document.getElementById('pixelateToggle')?.checked,
       glitch: document.getElementById('glitchToggle')?.checked
   };
-  // Klassen basierend auf den Checkboxen setzen/entfernen
   Object.keys(effects).forEach(effect => {
       if (effects[effect]) {
           ctr.classList.add(effect);
@@ -424,7 +395,6 @@ function applyEffects() {
           ctr.classList.remove(effect);
       }
   });
-   // console.log("Applied effects:", effects); // Debug Log
 }
 
 // --- END OF FILE ui/gameUI.js ---
