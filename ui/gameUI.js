@@ -2,13 +2,15 @@
 
 import { i18n } from '../utils/i18n.js';
 import {
-  countriesForGame, // Unsere lokale Datenquelle
+  countriesForGame,
   setCurrentCountry,
   language,
   setLanguage,
-  currentStreak,
-  setCurrentStreak,
-  userPlatform // Importiere Plattform-Variable
+  // currentStreak, // Nicht mehr direkt importieren
+  winStreaks, // Das Objekt mit allen Streaks importieren
+  saveWinStreaks, // Funktion zum Speichern importieren
+  selectedMode, // Den aktuell gewählten Modus importieren
+  userPlatform
 } from '../script.js';
 import { showFlagListModal } from './flagListModal.js';
 import { showStartScreen } from './startScreen.js';
@@ -16,6 +18,29 @@ import { showStartScreen } from './startScreen.js';
 let flagHideTimer = null;
 let blackoutActive = false;
 let flagRevealQueued = false;
+
+// ---- NEU: Funktion zum Anzeigen des aktuellen Streaks ----
+export function displayCurrentStreak() {
+    const streakContainer = document.getElementById('streak-container');
+    const winningStreakEl = document.getElementById('winningStreak');
+    const currentModeStreak = winStreaks[selectedMode] || 0; // Hole Streak für aktuellen Modus, default 0
+
+    // console.log(`Displaying streak for mode ${selectedMode}: ${currentModeStreak}`); // Debug
+
+    if (winningStreakEl) {
+        winningStreakEl.textContent = currentModeStreak;
+    }
+    if (streakContainer) {
+        if (currentModeStreak > 0) {
+            streakContainer.classList.add('has-streak');
+        } else {
+            streakContainer.classList.remove('has-streak');
+        }
+        // Entferne ggf. alte Puls-Animation, falls Modus gewechselt wird
+        if(winningStreakEl) winningStreakEl.classList.remove('streak-pulse');
+    }
+}
+// -------------------------------------------------------
 
 // Setzt alle Event Listener für die UI-Elemente
 export function setupUIListeners() {
@@ -36,7 +61,6 @@ export function setupUIListeners() {
     }
   });
   document.getElementById('timeSelect').addEventListener('change', () => {
-    // Wendet den Timer auf die aktuell angezeigte Flagge an, wenn das Raten läuft
     if (window.currentCountry && !document.getElementById('submitBtn').disabled) {
        applyTimerToCurrentFlag();
     }
@@ -60,20 +84,15 @@ export function setupUIListeners() {
 
   document.getElementById('backToStartBtn').addEventListener('click', showStartScreen);
 
-  // Initialen Streak-Wert setzen (wird auch in updateUserInterfaceForPlatform gemacht)
-  const streakEl = document.getElementById('winningStreak');
-  if (streakEl) streakEl.textContent = currentStreak;
-   const streakContainer = document.getElementById('streak-container');
-   if (streakContainer) {
-        if (currentStreak > 0) streakContainer.classList.add('has-streak');
-        else streakContainer.classList.remove('has-streak');
-   }
+  // Initialen Streak-Wert anzeigen (für den Standardmodus 'all' oder was auch immer initial ist)
+  displayCurrentStreak();
 }
 
 // Initialisiert das Spiel nach Auswahl des Modus
 export function setupGameForSelectedOptions() {
   document.getElementById('languageSelect').value = language;
   updateUI();
+  // Wichtig: displayCurrentStreak wird jetzt in setGameCountries/setSelectedMode aufgerufen
   loadNewFlag(); // Lädt die erste Flagge
 }
 
@@ -92,9 +111,8 @@ export function updateUI() {
   document.querySelector('[data-i18n="timeLabel"]').textContent = i18n[language].timeLabel;
   const flagListTitle = document.querySelector('[data-i18n="flagListTitle"]');
   if (flagListTitle) flagListTitle.textContent = i18n[language].flagListTitle;
-  document.querySelector('[data-i18n="winStreak"]').textContent = i18n[language].winStreak;
+  document.querySelector('[data-i18n="winStreak"]').textContent = i18n[language].winStreak; // Das Label, das wir ausblenden
   document.querySelector('[data-i18n="backToStartBtn"]').textContent = i18n[language].backToStartBtn;
-  // Aktualisiert den Alt-Text, wenn eine Flagge angezeigt wird
   if (window.currentCountry) {
     const name = language === 'de'
       ? (window.currentCountry.translations?.deu?.common || window.currentCountry.name?.common)
@@ -102,17 +120,19 @@ export function updateUI() {
     const flagEl = document.getElementById('flag');
     if(flagEl) flagEl.alt = i18n[language].flagAlt(name || 'Unbekannt');
   }
+  // Stelle sicher, dass der aktuell korrekte Streak angezeigt wird
+  displayCurrentStreak();
 }
 
-// ---- NEU/ANGEPASST: Passt das UI basierend auf der Plattform an ----
+// Passt das UI basierend auf der Plattform an
 export function updateUserInterfaceForPlatform() {
     console.log("Updating UI for platform:", userPlatform);
     const streakContainer = document.getElementById('streak-container');
-    const controlsDiv = document.getElementById('controls'); // Wo es im PC Layout VOR steht
-    const quizDiv = document.getElementById('quiz'); // Wo es im Android Layout ANS ENDE kommt
-    const mainElement = document.querySelector('main'); // Eltern-Element im PC Layout
+    const controlsDiv = document.getElementById('controls');
+    const quizDiv = document.getElementById('quiz');
+    const mainElement = document.querySelector('main');
 
-    if (!streakContainer || !controlsDiv || !quizDiv || !mainElement) {
+    if (!streakContainer || !quizDiv || !mainElement) { // controlsDiv nicht mehr zwingend nötig fürs Zurückschieben
         console.warn("Cannot update UI for platform: Required elements not found.");
         return;
     }
@@ -123,35 +143,25 @@ export function updateUserInterfaceForPlatform() {
         // Verschiebe den Streak-Container ANS ENDE des #quiz Divs
         if (streakContainer.parentNode !== quizDiv) {
             console.log("Moving streak container into #quiz for Android layout.");
-            quizDiv.appendChild(streakContainer); // Fügt es am Ende von #quiz hinzu
+            quizDiv.appendChild(streakContainer);
         }
     } else {
         // PC oder unbekannt -> Standardlayout sicherstellen
         document.body.classList.remove('platform-android');
         // Verschiebe den Streak-Container ZURÜCK VOR die #controls (innerhalb von main)
-        if (streakContainer.parentNode !== mainElement || streakContainer.nextSibling !== controlsDiv) {
-           // Nur verschieben, wenn es nicht schon an der richtigen Stelle ist
-           // (z.B. wenn es noch im quizDiv ist)
-            console.log("Moving streak container back before #controls for PC layout.");
-            mainElement.insertBefore(streakContainer, controlsDiv);
+        // Finde die Referenz (controls oder quiz, je nachdem was zuerst kommt)
+        const referenceNode = controlsDiv || quizDiv; // Nimm controls, sonst quiz
+         if (referenceNode && streakContainer.parentNode !== mainElement || streakContainer.nextSibling !== referenceNode) {
+            console.log("Moving streak container back before #controls/quiz for PC layout.");
+            mainElement.insertBefore(streakContainer, referenceNode);
         }
     }
-
-    // Initialen Streak-Wert und Styling sicherstellen (redundant, aber sicher)
-    const streakEl = document.getElementById('winningStreak');
-    if (streakEl) streakEl.textContent = currentStreak;
-    if (streakContainer) {
-        if (currentStreak > 0) {
-            streakContainer.classList.add('has-streak');
-        } else {
-            streakContainer.classList.remove('has-streak');
-        }
-    }
+    // Initialen Streak-Wert und Styling sicherstellen
+    displayCurrentStreak(); // Zeigt korrekten Wert und Stil an
 }
-// -------------------------------------------------------
 
 
-// Lädt eine neue Flagge und setzt die UI zurück
+// Lädt eine neue Flagge (Logik bleibt gleich, nutzt lokales Array)
 export function loadNewFlag() {
   console.log("loadNewFlag: Using countriesForGame array with length:", countriesForGame.length);
   blackoutActive = false;
@@ -252,7 +262,7 @@ export function loadNewFlag() {
   }
 }
 
-// Wendet den eingestellten Timer auf die aktuell sichtbare Flagge an
+// Wendet den eingestellten Timer an (Logik bleibt gleich)
 function applyTimerToCurrentFlag() {
     clearTimeout(flagHideTimer);
     const flagImg = document.getElementById('flag');
@@ -290,9 +300,9 @@ function applyTimerToCurrentFlag() {
     }
 }
 
-// Überprüft die Benutzereingabe gegen das aktuelle Land (mit Streak-Animation)
+// ---- Überprüft die Eingabe (ANGEPASST für separates Streak-Objekt) ----
 function checkGuess() {
-  clearTimeout(flagHideTimer); // Aktiven Timer stoppen
+  clearTimeout(flagHideTimer);
 
   const guessInput = document.getElementById('guessInput');
   const input = guessInput.value.trim().toLowerCase();
@@ -300,19 +310,15 @@ function checkGuess() {
   const resultEl = document.getElementById('result');
   const submitBtn = document.getElementById('submitBtn');
   const nextBtn = document.getElementById('nextBtn');
-  const streakContainer = document.getElementById('streak-container');
-  const winningStreakEl = document.getElementById('winningStreak');
+  const winningStreakEl = document.getElementById('winningStreak'); // Nur das Zahl-Element
 
   if (!currentCountryData) {
     console.error("checkGuess: currentCountry data is missing.");
-    if(resultEl){
-        resultEl.textContent = "Fehler: Interner Zustand ungültig.";
-        resultEl.style.color = 'red';
-    }
+    if(resultEl){ resultEl.textContent = "Fehler: Interner Zustand ungültig."; resultEl.style.color = 'red'; }
     return;
   }
 
-  // Korrekte Namen ermitteln (mit Fallback)
+  // Korrekte Namen ermitteln
   const correctDe = currentCountryData.translations?.deu?.common?.toLowerCase();
   const correctEn = currentCountryData.name?.common?.toLowerCase();
   const correct = language === 'de' ? correctDe : correctEn;
@@ -320,38 +326,36 @@ function checkGuess() {
       ? (currentCountryData.translations?.deu?.common || currentCountryData.name?.common)
       : (currentCountryData.name?.common || currentCountryData.translations?.deu?.common);
 
-  // --- Winstreak Logik ---
+  // --- Winstreak Logik für aktuellen Modus ---
+  let currentModeStreak = winStreaks[selectedMode] || 0; // Hole aktuellen Wert, default 0
   let streakIncreased = false;
 
   if (correct && input === correct) {
-    if(resultEl){
-        resultEl.textContent = i18n[language].correct;
-        resultEl.style.color = 'green';
-    }
-    setCurrentStreak(currentStreak + 1);
+    // Richtige Antwort
+    if(resultEl){ resultEl.textContent = i18n[language].correct; resultEl.style.color = 'green'; }
+    currentModeStreak++; // Erhöhe den Wert für DIESEN Modus
+    winStreaks[selectedMode] = currentModeStreak; // Aktualisiere im Objekt
     streakIncreased = true;
   } else {
-    if(resultEl){
-        resultEl.textContent = i18n[language].wrong(correctNameForDisplay || 'Unbekannt');
-        resultEl.style.color = 'red';
-    }
-    setCurrentStreak(0);
+    // Falsche Antwort
+    if(resultEl){ resultEl.textContent = i18n[language].wrong(correctNameForDisplay || 'Unbekannt'); resultEl.style.color = 'red'; }
+    winStreaks[selectedMode] = 0; // Setze Streak für DIESEN Modus zurück
+    currentModeStreak = 0; // Aktualisiere lokale Variable für Anzeige
   }
 
-  // Update der Anzeige und Animation für den Streak
-  if (winningStreakEl && streakContainer) {
-      // Zahl und Farbe/Klasse werden bereits durch setCurrentStreak gesetzt
-      // Nur Animation bei Erhöhung auslösen
-      if (currentStreak > 0 && streakIncreased) {
-          winningStreakEl.classList.add('streak-pulse');
-          setTimeout(() => {
-              winningStreakEl.classList.remove('streak-pulse');
-          }, 400); // Dauer muss zur CSS-Animation passen
-      }
+  saveWinStreaks(); // Speichere das gesamte Streak-Objekt in localStorage
+  displayCurrentStreak(); // Aktualisiere die Anzeige (Zahl und Farbe)
+
+  // Animation nur bei Erhöhung
+  if (winningStreakEl && currentModeStreak > 0 && streakIncreased) {
+      winningStreakEl.classList.add('streak-pulse');
+      setTimeout(() => {
+          winningStreakEl.classList.remove('streak-pulse');
+      }, 400);
   }
   // -------------------------
 
-  // Flagge wieder anzeigen, falls sie ausgeblendet war
+  // Flagge wieder anzeigen, falls ausgeblendet
   const flagContainerEl = document.getElementById('flag-container');
   const flagBlackoutEl = document.getElementById('flag-blackout');
   const flagImgEl = document.getElementById('flag');
@@ -365,27 +369,24 @@ function checkGuess() {
   // UI für nächste Runde vorbereiten
   if(submitBtn) submitBtn.disabled = true;
   if(guessInput) guessInput.disabled = true;
-  if(nextBtn) {
-      nextBtn.disabled = false;
-      // KEIN automatischer Fokus
-  }
+  if(nextBtn) nextBtn.disabled = false; // Nächste erlauben
 
   // Optional: Automatisch nächste Flagge nach 2 Sekunden
    setTimeout(() => {
-      // Prüfe, ob das Ergebnis-Element noch existiert und Text enthält
       const currentResultEl = document.getElementById('result');
       if (currentResultEl && currentResultEl.textContent !== '') {
           loadNewFlag();
       }
   }, 2000);
 }
+// --------------------------------------------------------------
 
-// Wendet die visuellen Effekte (Graustufen etc.) an
+
+// Wendet die visuellen Effekte an (Logik bleibt gleich)
 function applyEffects() {
   const ctr = document.getElementById('flag-container');
   if (!ctr) return;
   ctr.classList.remove('grayscale', 'glitch', 'pixelate', 'invert');
-  // Prüfe Existenz der Checkboxen, bevor auf checked zugegriffen wird
   if (document.getElementById('grayscaleToggle')?.checked) ctr.classList.add('grayscale');
   if (document.getElementById('invertToggle')?.checked) ctr.classList.add('invert');
   if (document.getElementById('pixelateToggle')?.checked) ctr.classList.add('pixelate');
