@@ -7,27 +7,26 @@ import { setupGameForSelectedOptions } from './gameUI.js';
 export function initStartScreen() {
   console.log("initStartScreen called");
 
+  const startScreenEl = document.getElementById('start-screen');
   const stepLang = document.getElementById('step-language');
   const stepMode = document.getElementById('step-mode');
 
-  // --- Add defensive display setting on initial load ---
-  // Ensure the language step is visible and mode step is hidden by default.
-  // This guards against potential rendering issues or timing conflicts
-  // with the platform modal or other initial loading logic.
-  if (stepLang) {
-      stepLang.style.display = 'block';
-      console.log("Ensured #step-language is displayed.");
-  } else {
-      console.error("Element #step-language not found during initStartScreen!");
-  }
-   if (stepMode) {
-      stepMode.style.display = 'none';
-       console.log("Ensured #step-mode is hidden.");
-   } else {
-       console.error("Element #step-mode not found during initStartScreen!");
+   if (!startScreenEl || !stepLang || !stepMode) {
+        console.error("FEHLER in initStartScreen: Wichtige Startbildschirm-Elemente fehlen!");
+        // Optional: Display a fatal error or fallback UI
+        return;
    }
-   console.log("Initial start screen step display state enforced.");
-  // ----------------------------------------------------
+
+
+  // --- Ensure initial step display state ---
+  // This ensures that even if CSS or other scripts interfere,
+  // the language selection is the default visible step on load.
+  startScreenEl.style.display = 'flex'; // Ensure the container is visible
+  startScreenEl.classList.remove('hide'); // Ensure it's not hidden by opacity
+  stepLang.style.display = 'block'; // Show language step
+  stepMode.style.display = 'none'; // Hide mode step
+  console.log("Initial start screen step display state enforced: Language step shown.");
+  // ----------------------------------------
 
 
   // --- Sprachauswahl Listener ---
@@ -36,7 +35,7 @@ export function initStartScreen() {
   if (langBtns.length === 0) {
       console.error("FEHLER: Keine Sprachauswahl-Buttons mit Klasse '.lang-select-btn' gefunden!");
   }
-  for (const btn of langBtns) {
+  langBtns.forEach(btn => { // Use forEach for cleaner loop
     const lang = btn.dataset.lang;
     // console.log(`Adding listener to language button: ${lang}`);
     btn.addEventListener('click', (event) => {
@@ -49,20 +48,21 @@ export function initStartScreen() {
           // Hide language step and show mode step
           const stepLang = document.getElementById('step-language'); // Re-get elements to be safe
           const stepMode = document.getElementById('step-mode');
-          if (stepLang) {
+          if (stepLang && stepMode) { // Check both exist before swapping
               stepLang.style.display = 'none';
-              console.log("Hid #step-language.");
-          }
-          if (stepMode) {
               stepMode.style.display = 'block';
-              console.log("Showed #step-mode.");
+              console.log("Switched from language step to mode step.");
+          } else {
+              console.error("FEHLER beim Wechsel der Startbildschirm-Schritte: stepLang oder stepMode nicht gefunden!");
           }
           console.log("--- Language button click handler finished ---");
       } catch (error) {
           console.error("FEHLER im Language Button Click Handler:", error);
+          // Optional: Display an error message to the user
       }
     });
-  }
+  });
+
 
   // --- Modusauswahl Listener ---
   const modeBtns = document.querySelectorAll('.mode-select-btn');
@@ -70,14 +70,14 @@ export function initStartScreen() {
   if (modeBtns.length === 0) {
       console.error("FEHLER: Keine Modusauswahl-Buttons mit Klasse '.mode-select-btn' gefunden!");
   }
-  for (const btn of modeBtns) {
+  modeBtns.forEach(btn => { // Use forEach for cleaner loop
     btn.addEventListener('click', () => {
       const mode = btn.dataset.mode;
       console.log(`Mode button clicked: ${mode}`);
       setSelectedMode(mode);
       showGameScreen();
     });
-  }
+  });
 
   // --- Listener für den "Zurück zur Sprache"-Button ---
   const backToLangBtn = document.getElementById('backToLanguageBtn');
@@ -92,7 +92,7 @@ export function initStartScreen() {
   }
   // ------------------------------------------------------
 
-  updateStartScreenI18n(); // Initiales Setzen der Texte
+  updateStartScreenI18n(); // Initiales Setzen der Texte basierend auf default 'de' or saved lang
 }
 
 // Updates only the texts relevant to the start screen
@@ -100,33 +100,37 @@ function updateStartScreenI18n() {
     console.log(`Updating start screen i18n for language: ${language}`);
     try {
         const startTitle = document.getElementById('start-title');
-        if (startTitle) startTitle.textContent = i18n[language].title;
+        if (startTitle) startTitle.textContent = i18n[language]?.title || i18n.de.title; // Fallback to German
 
         const stepLangH2 = document.querySelector('#step-language h2');
-        if (stepLangH2) stepLangH2.textContent = i18n[language].chooseLang;
+        if (stepLangH2) stepLangH2.textContent = i18n[language]?.chooseLang || i18n.de.chooseLang;
 
         const chooseModeLabel = document.getElementById('choose-mode-label');
-        if (chooseModeLabel) chooseModeLabel.textContent = i18n[language].chooseMode;
+        if (chooseModeLabel) chooseModeLabel.textContent = i18n[language]?.chooseMode || i18n.de.chooseMode;
 
         // Update mode buttons
         const modeButtonSpans = document.querySelectorAll('.mode-select-btn span[data-i18n]');
         modeButtonSpans.forEach(span => {
             const key = span.dataset.i18n;
-            if (i18n[language] && i18n[language][key]) {
-                span.textContent = i18n[language][key];
-            } else {
-                console.warn(`i18n key '${key}' not found for lang '${language}'.`);
-            }
+            span.textContent = i18n[language]?.[key] || i18n.de[key] || span.textContent; // Fallback chain
         });
 
         // Update text for the "Back to Language" button
         const backToLangBtnSpan = document.querySelector('#backToLanguageBtn span[data-i18n="backToLanguageBtn"]');
-        if (backToLangBtnSpan && i18n[language]?.backToLanguageBtn) {
-            backToLangBtnSpan.textContent = i18n[language].backToLanguageBtn;
-        } else if (document.getElementById('backToLanguageBtn') && !backToLangBtnSpan) {
+        if (backToLangBtnSpan) {
+             backToLangBtnSpan.textContent = i18n[language]?.backToLanguageBtn || i18n.de.backToLanguageBtn; // Fallback
+        } else if (document.getElementById('backToLanguageBtn')) {
              console.warn("Span with data-i18n='backToLanguageBtn' not found inside #backToLanguageBtn for i18n update.");
         }
-        // -------------------------------------------------------------
+
+        // Update text for the "Back" button in the game UI (even though it's hidden)
+        const backToStartBtnGameSpan = document.querySelector('#backToStartBtn span[data-i18n="backToStartBtn"]');
+         if (backToStartBtnGameSpan) {
+             backToStartBtnGameSpan.textContent = i18n[language]?.backToStartBtn || i18n.de.backToStartBtn; // Fallback
+        } else if (document.getElementById('backToStartBtn')) {
+             console.warn("Span with data-i18n='backToStartBtn' not found inside #backToStartBtn for i18n update.");
+        }
+
 
         console.log("Finished updating start screen i18n.");
     } catch (error) {
@@ -134,7 +138,7 @@ function updateStartScreenI18n() {
     }
 }
 
-// --- showGameScreen remains unchanged ---
+// --- showGameScreen remains largely unchanged ---
 export function showGameScreen() {
     console.log(`showGameScreen called with mode: ${selectedMode}`);
     let filtered;
@@ -182,13 +186,13 @@ export function showGameScreen() {
         console.error("FEHLER beim Bildschirmwechsel: #start-screen oder main Element nicht gefunden!");
         return;
     }
-    startScreenEl.classList.add('hide');
+    startScreenEl.classList.add('hide'); // Use opacity transition
     console.log("Klasse 'hide' zu #start-screen hinzugefügt.");
     setTimeout(() => {
         try {
             console.log("Timeout abgelaufen: Verstecke Startbildschirm, zeige Hauptspiel.");
-            startScreenEl.style.display = 'none';
-            mainEl.style.display = 'block';
+            startScreenEl.style.display = 'none'; // Fully hide after transition
+            mainEl.style.display = 'flex'; // Show main game area (using flex as per new CSS)
             console.log("Rufe setupGameForSelectedOptions auf...");
             setupGameForSelectedOptions();
         } catch(error) {
@@ -217,7 +221,7 @@ export function showStartScreen(targetStep = 'mode') { // Standard ist 'mode'
   // Hauptspiel immer ausblenden
   mainEl.style.display = 'none';
 
-  // Startbildschirm anzeigen
+  // Startbildschirm anzeigen (ensure it's visible and not transitioning out)
   startScreenEl.style.display = 'flex'; // Use flex as defined in CSS
   startScreenEl.classList.remove('hide'); // Ensure it's not hidden by opacity
 
