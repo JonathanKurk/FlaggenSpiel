@@ -149,5 +149,3 @@ self.addEventListener('fetch', event => {
       })
   );
 });
-
-// --- END OF FILE service-worker.js ---
