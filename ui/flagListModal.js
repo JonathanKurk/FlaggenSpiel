@@ -125,7 +125,7 @@ function flagListEntryMouseEnter(e) {
   const cca3 = target.getAttribute('data-cca3');
 
   // --- DEBUG LOG: Welches Land wird gesucht? ---
-  console.log("Hovering over entry with cca3:", cca3);
+  // console.log("Hovering over entry with cca3:", cca3);
   // --- END DEBUG LOG ---
 
   const country = countries.find(c => c.cca3 === cca3);
@@ -137,7 +137,7 @@ function flagListEntryMouseEnter(e) {
      return;
   }
    // --- DEBUG LOG: Land gefunden ---
-   console.log("Found country object:", country);
+   // console.log("Found country object:", country);
    // --- END DEBUG LOG ---
 
 
@@ -210,13 +210,12 @@ function formatNum(n) {
 }
 
 
-// === DIESE FUNKTION IST ENTSCHEIDEND ===
 // Generiert den Detailtext für das Info-Popup
 function getCountryDetailText(c) {
   if (!c) return ''; // Sicherheitscheck
 
   // --- DEBUG LOG: Zeige das empfangene Länderobjekt ---
-  console.log("getCountryDetailText received country data:", c);
+  // console.log("getCountryDetailText received country data:", c);
   // --- END DEBUG LOG ---
 
   const l18n = i18n[language].flagListData; // Übersetzte Labels holen
@@ -225,49 +224,48 @@ function getCountryDetailText(c) {
   // Ländername (fett)
   const countryName = (language === 'de' ? c.translations?.deu?.common : c.name?.common) || c.name?.common || 'N/A';
   result += `<div class="flag-detail-row"><b>${countryName}</b></div>`;
-  console.log("Added country name:", countryName); // DEBUG
+  // console.log("Added country name:", countryName); // DEBUG
 
   // Hauptstadt
   const capital = Array.isArray(c.capital) ? c.capital.join(', ') : (c.capital || "");
   if (capital) {
     result += `<div class="flag-detail-row"><span class="flag-detail-label">${l18n.capital || 'Capital'}:</span> <span>${capital}</span></div>`;
-    console.log("Added capital:", capital); // DEBUG
+    // console.log("Added capital:", capital); // DEBUG
   } else {
-    console.log("No capital data found for:", countryName); // DEBUG
+    // console.log("No capital data found for:", countryName); // DEBUG
   }
 
   // Sprachen (sicherer Zugriff und Formatierung)
   if (c.languages && Object.keys(c.languages).length > 0) {
     const langs = Object.values(c.languages).join(', ');
     result += `<div class="flag-detail-row"><span class="flag-detail-label">${l18n.languages || 'Languages'}:</span> <span>${langs}</span></div>`;
-    console.log("Added languages:", langs); // DEBUG
+    // console.log("Added languages:", langs); // DEBUG
   } else {
-     console.log("No languages data found for:", countryName); // DEBUG
+     // console.log("No languages data found for:", countryName); // DEBUG
   }
 
   // Bevölkerung
   if (typeof c.population !== 'undefined' && c.population !== null) { // Explizitere Prüfung
      const formattedPopulation = formatNum(c.population);
      result += `<div class="flag-detail-row"><span class="flag-detail-label">${l18n.population || 'Population'}:</span> <span>${formattedPopulation}</span></div>`;
-     console.log("Added population:", formattedPopulation); // DEBUG
+     // console.log("Added population:", formattedPopulation); // DEBUG
   } else {
-     console.log("No population data found for:", countryName); // DEBUG
+     // console.log("No population data found for:", countryName); // DEBUG
   }
 
   // Fläche
   if (typeof c.area !== 'undefined' && c.area !== null) { // Explizitere Prüfung
     const formattedArea = formatNum(c.area);
     result += `<div class="flag-detail-row"><span class="flag-detail-label">${l18n.area || 'Area'}:</span> <span>${formattedArea} km²</span></div>`;
-    console.log("Added area:", formattedArea + " km²"); // DEBUG
+    // console.log("Added area:", formattedArea + " km²"); // DEBUG
   } else {
-     console.log("No area data found for:", countryName); // DEBUG
+     // console.log("No area data found for:", countryName); // DEBUG
   }
 
 
   // --- DEBUG LOG: Zeige das generierte HTML ---
-  console.log("Generated detail HTML:", result);
+  // console.log("Generated detail HTML:", result);
   // --- END DEBUG LOG ---
 
   return result;
 }
-// =======================================
