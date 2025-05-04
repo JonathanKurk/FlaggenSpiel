@@ -41,9 +41,10 @@ body {
 /* == Standard PC Layout == */
 /* ======================== */
 main {
+  /* Standardmäßig kein Flex-Container */
   padding: 3.5rem 1rem 3rem 1rem;
-  max-width: 900px; /* Maximale Breite für den Hauptinhalt auf PC */
-  margin: 0 auto; /* Zentriert den Hauptinhalt */
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 main h1[data-i18n="title"] { display: none; }
@@ -62,23 +63,25 @@ main h1[data-i18n="title"] { display: none; }
 #winningStreak.streak-pulse { animation: pulseStreak 0.4s ease-out forwards; }
 @keyframes pulseStreak { 0% { transform: scale(1); } 50% { transform: scale(1.35); text-shadow: 0 0 16px rgba(255, 215, 0, 0.7); } 100% { transform: scale(1); } }
 
-/* PC: "Kontroll-Leiste" oben (nicht mehr in #controls) */
-/* Wir erstellen einen virtuellen Container für die oberen Elemente */
-#languageSelect,
+/* PC: Elemente oben gruppieren */
+/* Wir erstellen einen Block für die oberen Elemente */
+#toggle-switches-container,
 #timer-label,
+#languageSelect,
 #backToStartBtn {
     margin: 0.5rem 0.75rem; /* Abstand um die einzelnen Controls */
+    display: inline-block; /* Erlaubt nebeneinander stehen */
+    vertical-align: middle; /* Vertikal ausrichten */
 }
-
-/* PC: Toggle Switches Container */
+/* Spezielles Margin für den Container */
 #toggle-switches-container {
-    display: flex;
+    display: inline-flex; /* Flex für die Toggles darin */
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem 1rem;
     align-items: center;
-    margin: 1.5rem auto 1rem auto; /* Abstand über/unter dem Block */
-    /* order wird ignoriert, da main kein Flex-Container ist */
+    margin: 1rem auto; /* Abstand über/unter dem Block */
+    width: auto; /* Breite automatisch */
 }
 
 /* PC: Styling für Selects und Labels */
@@ -117,20 +120,20 @@ input:checked + .slider:before { transform: translateX(22px); }
 input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
 .toggle-label { font-size: 1.0rem; font-weight: 500; color: #3b466d; white-space: nowrap; }
 
+
 /* PC: Quiz Container */
 #quiz {
-    display: inline-block;
+    display: block; /* Block auf PC für Zentrierung mit margin:auto */
     background: var(--color-card);
     padding: 2.4rem 2.1rem 2.3rem 2.1rem;
     border-radius: var(--radius-main);
     box-shadow: var(--shadow-card);
     min-width: 364px;
-    max-width: 98vw;
+    max-width: 600px; /* Etwas schmaler als main */
     transition: box-shadow var(--transition-speed);
     text-align: center;
-    width: auto;
-    margin-top: 1.5rem;
-    /* order wird ignoriert */
+    width: fit-content; /* Breite an Inhalt anpassen */
+    margin: 2rem auto 1.5rem auto; /* Zentrieren und Abstand */
 }
 
 /* PC: Flaggen Container */
@@ -166,10 +169,10 @@ input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
 #quiz button:hover, #quiz button:focus { background: var(--color-primary-hover); box-shadow: 0 2.2px 10px 0 rgba(32,96,255,0.15); }
 #result { margin-top: 0.6rem; min-height: 1.2rem; font-weight: bold; font-size: 1.09rem; }
 
-/* PC: Styling für #showFlagListBtn und #backToStartBtn */
+/* PC: Styling für #showFlagListBtn */
 #showFlagListBtn {
     display: inline-block; /* Nicht block auf PC */
-    margin-top: 1.5rem; /* Abstand zum Quiz */
+    margin: 1.5rem 0.75rem 0 0.75rem; /* Abstand zum Quiz und zu anderen Buttons */
     border-radius: 8px;
     font-size: 1.03em;
     background: #e7eefd;
@@ -181,8 +184,10 @@ input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
 }
 #showFlagListBtn:hover, #showFlagListBtn:focus { background: #d3e0fd; color: #1544aa; }
 
+/* PC: Styling für #backToStartBtn */
 #backToStartBtn {
     display: inline-block;
+    margin-top: 1.5rem; /* Konsistenter Abstand nach oben */
     background: #e8edfc;
     color: #1b3b8a;
     border: 1.2px solid #c5d4f0;
@@ -195,6 +200,7 @@ input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
 #backToStartBtn:hover, #backToStartBtn:focus { background: #cbe0fc; color: var(--color-primary-hover); }
 
 /* == Modale etc. (unverändert) == */
+/* (Alle Stile für flag-list-modal, flag-hover-popup etc. bleiben hier) */
 .flag-list-modal { position: fixed; z-index: 11000; top: 0; left: 0; right: 0; bottom: 0; }
 .flag-list-modal-backdrop { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--modal-bg); cursor: pointer; }
 .flag-list-modal-content { position: absolute; background: #fff; top: 50%; left: 50%; width: 99vw; max-width: 960px; max-height: 92vh; overflow-y: auto; border-radius: 18px; transform: translate(-50%, -50%); box-shadow: 0 8px 34px rgba(32,44,99,0.16); padding: 2.1rem 2rem 1.4rem 2rem; text-align: left; animation: modalIn .23s; font-size: 1.08rem; }
@@ -219,6 +225,14 @@ input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
 .flag-hover-popup.info-redesign .flag-detail-row span:not(.flag-detail-label):not(b) { color: #152640; font-weight: 450; letter-spacing: 0.01em; word-break: break-word; }
 @media (max-width: 728px) { .flag-hover-popup.info-redesign { max-width: 97vw; padding: 0.6em 0.4em 0.7em 0.6em; } .flag-hover-popup.info-redesign .flag-hover-img img { width: 96px; height: auto; max-height: 70px; } .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 110px); } }
 @media (max-width: 430px) { .flag-hover-popup.info-redesign .flag-hover-img img { width: 68px; height: auto; max-height: 50px;} .flag-hover-popup.info-redesign { padding: 0.34em 0.2em 0.44em 0.22em; font-size: 0.95em;} .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 80px); } }
+.platform-modal { position: fixed; inset: 0; background-color: rgba(31, 38, 46, 0.75); display: flex; align-items: center; justify-content: center; z-index: 15000; animation: fadeIn 0.3s ease-out; }
+.platform-modal-content { background: var(--color-card); padding: 2.5rem 3rem; border-radius: var(--radius-main); box-shadow: var(--shadow-popup); text-align: center; max-width: 450px; width: 90%; }
+.platform-modal-content h2 { margin-bottom: 0.8rem; color: var(--color-primary-hover); font-size: 1.6rem; }
+.platform-modal-content p { margin-bottom: 2rem; color: var(--color-text); font-size: 1.05rem; }
+.platform-modal-buttons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+.platform-modal-buttons button { font-size: 1.1rem; padding: 0.8rem 1.5rem; min-width: 150px; font-family: inherit; border: none; border-radius: 14px; background: #eef5ff; color: #183a71; font-weight: 600; box-shadow: 0 1px 8px 0 rgba(61,92,222,0.08); transition: all 0.14s ease-out; cursor: pointer; }
+.platform-modal-buttons button:hover { background: var(--color-primary); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px 0 rgba(20,32,145,0.15); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* == Start Screen (unverändert) == */
 #start-screen { position: fixed; z-index: 12001; inset: 0; background: linear-gradient(135deg, #e3eeff 0%, #e8f1fe 50%, #f9fafd 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; min-width: 100vw; transition: opacity .25s; }
@@ -244,12 +258,12 @@ input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
 /* ====================================== */
 
 body.platform-android main {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Zentriert alle direkten Kinder horizontal */
+    display: flex; /* << WICHTIG: main wird zum Flex Container */
+    flex-direction: column; /* << Kinder untereinander */
+    align-items: center;    /* << Zentriert Kinder horizontal */
     padding: 1.5rem 1rem 2rem 1rem; /* Angepasstes Padding */
-    gap: 1.2rem; /* Vertikaler Abstand zwischen den Hauptblöcken */
-    max-width: 100%; /* Erlaubt volle Breite */
+    gap: 1.2rem;            /* << Vertikaler Abstand zwischen den Hauptblöcken */
+    max-width: 100%;        /* Erlaubt volle Breite */
 }
 
 /* Definiere die Breite für die meisten Elemente auf Android */
@@ -267,11 +281,27 @@ body.platform-android #quiz {
     margin-bottom: 0;
 }
 
-/* Reihenfolge der Elemente in main auf Android */
+/* WICHTIG: Standard Margins und Display für Android überschreiben */
+body.platform-android #languageSelect,
+body.platform-android #timer-label,
+body.platform-android #backToStartBtn,
+body.platform-android #showFlagListBtn,
+body.platform-android #toggle-switches-container,
+body.platform-android #quiz,
+body.platform-android #streak-container {
+    display: block; /* Alle Elemente sind Blöcke */
+    margin: 0; /* Standardmargins entfernen, gap regelt Abstand */
+    order: 0;  /* Standardreihenfolge zurücksetzen */
+    position: static; /* Absolute Positionierung aufheben (wichtig für Streak) */
+    width: 100%; /* Alle Elemente nehmen volle Breite */
+    max-width: 480px; /* Begrenzen */
+}
+
+/* Reihenfolge der Elemente in main auf Android mit 'order' */
 body.platform-android #toggle-switches-container { order: 0; }
 body.platform-android #timer-label { order: 1; }
-body.platform-android #quiz { order: 2; }
-body.platform-android #streak-container { order: 3; }
+body.platform-android #quiz { order: 2; max-width: 95vw; /* Quiz darf breiter sein */ }
+body.platform-android #streak-container { order: 3; max-width: none; /* Streak Breite automatisch */ }
 body.platform-android #showFlagListBtn { order: 4; }
 /* Leerraum wird durch main gap geregelt */
 body.platform-android #languageSelect { order: 5; }
@@ -280,10 +310,10 @@ body.platform-android #backToStartBtn { order: 6; }
 /* Spezifisches Styling für Elemente auf Android */
 
 body.platform-android #toggle-switches-container {
-    display: flex;
+    display: flex; /* Bleibt Flex für interne Ausrichtung */
     flex-direction: column;
     align-items: flex-start; /* Linksbündig innen */
-    gap: 0.9rem; /* Etwas mehr Abstand */
+    gap: 0.9rem;
     padding: 0 0.5rem; /* Kleiner seitlicher Einzug für die Toggles */
 }
 body.platform-android .toggle-switch {
@@ -296,7 +326,7 @@ body.platform-android #timer-label {
     justify-content: flex-start;
     align-items: center;
     text-align: left;
-    padding: 0 0.5rem; /* Konsistenter Einzug */
+    padding: 0 0.5rem;
 }
 body.platform-android #timer-label select {
     margin-left: 0.5rem;
@@ -304,13 +334,12 @@ body.platform-android #timer-label select {
 
 body.platform-android #languageSelect {
     text-align: left;
-    padding: 0.7em 0.8em; /* Größeres Padding */
+    padding: 0.7em 0.8em;
 }
 
 body.platform-android #quiz {
     padding: 1.5rem 1rem;
     min-width: 0;
-    max-width: 95vw; /* Quiz darf etwas breiter sein */
 }
 
 body.platform-android #flag-container {
@@ -322,12 +351,8 @@ body.platform-android #flag-container {
 }
 
 body.platform-android #streak-container {
-     position: static; /* Position im Fluss */
-     width: auto;
      text-align: center;
-     display: block;
      font-size: 2.5rem; /* Etwas kleiner */
-     /* margin wird durch main gap geregelt */
 }
 
 /* Buttons auf Android volle Breite */
