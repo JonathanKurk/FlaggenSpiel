@@ -221,16 +221,19 @@ export function updateUserInterfaceForPlatform() {
         return;
     }
 
+    // --- NEU: CSS Klassen am body setzen ---
     if (userPlatform === 'android') {
         body.classList.add('platform-android');
         body.classList.remove('platform-pc'); // Ensure PC class is removed
         console.log("Applied Android specific layout class.");
     } else { // Default to PC layout
-        body.classList.add('platform-pc');
+        body.classList.add('platform-pc'); // Explizit setzen für Klarheit
         body.classList.remove('platform-android');
         console.log("Applied PC specific layout class.");
     }
-    // Re-display streak in case its position changed
+    // -------------------------------------
+
+    // Re-display streak in case its position changed based on the new body class
     displayCurrentStreak();
 }
 
@@ -321,7 +324,7 @@ export function loadNewFlag() {
         flagImg.style.visibility = 'visible'; // Make flag visible
         guessInput.disabled = false;        // Enable input
         submitBtn.disabled = false;         // Enable submit
-        guessInput.focus();                 // Focus input field for convenience
+        // guessInput.focus(); // <<< DIESE ZEILE WURDE ENTFERNT/AUSKOMMENTIERT
         applyTimerToCurrentFlag();          // Start the visibility timer if applicable
         flagRevealQueued = false;           // Mark as revealed
     } else {
