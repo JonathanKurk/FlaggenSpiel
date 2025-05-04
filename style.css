@@ -4,19 +4,16 @@
 :root {
   --color-bg: #f7fafd;
   --color-card: #fff;
-  --color-primary: #2060e0; /* Hauptakzentfarbe */
-  --color-primary-light: rgba(32, 96, 224, 0.2); /* Leichterer Ton für Schatten */
+  --color-primary: #2060e0;
   --color-primary-hover: #1544aa;
   --color-text: #242d3c;
-  --color-border-input: #d8dde9; /* Rahmenfarbe für Input */
-  --color-placeholder: #8a97b1; /* Platzhalterfarbe */
   --transition-speed: 0.23s;
   --modal-bg: rgba(31, 38, 46, 0.60);
   --shadow-card: 0 3.5px 24px rgba(26,42,83,0.15);
   --shadow-popup: 0 6px 32px 0 rgba(0,0,0,0.14), 0 1.5px 10px 0 rgba(0,0,0,0.08);
   --radius-main: 14px;
   --radius-button: 7px;
-  --radius-input: 9px; /* Leicht vergrößerter Radius für Input */
+  --radius-input: 7px;
   --streak-gold: #FFD700;
   --streak-gray: #959cad;
 }
@@ -40,49 +37,50 @@ body {
   position: relative;
 }
 
-/* == Standard (PC) Layout - Klassen werden jetzt via JS gesetzt == */
-body.platform-pc main {
+/* == Standard (PC) Layout == */
+main {
   padding: 3.5rem 1rem 3rem 1rem;
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 900px; /* Maximale Breite für den Hauptinhalt auf PC */
+  margin: 0 auto; /* Zentriert den Hauptinhalt */
 }
 
+main h1[data-i18n="title"] { display: none; }
+
 /* PC: Streak absolut positioniert */
-body.platform-pc #streak-container {
+#streak-container {
   position: absolute;
   top: 1rem;
   right: 1.5rem;
   z-index: 100;
   text-align: right;
 }
-body.platform-pc #streak-container span[data-i18n="winStreak"] { display: none; }
-body.platform-pc #winningStreak { font-family: 'Poppins', 'Inter', sans-serif; font-weight: 700; font-size: 2.8rem; line-height: 1; color: var(--streak-gray); transition: color 0.3s ease, transform 0.15s ease-out, text-shadow 0.3s ease; display: inline-block; text-shadow: none; }
-body.platform-pc #streak-container.has-streak #winningStreak { color: var(--streak-gold); text-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
-body.platform-pc #winningStreak.streak-pulse { animation: pulseStreak 0.4s ease-out forwards; }
-
-/* Gemeinsames Streak Styling */
+#streak-container span[data-i18n="winStreak"] { display: none; }
+#winningStreak { font-family: 'Poppins', 'Inter', sans-serif; font-weight: 700; font-size: 2.8rem; line-height: 1; color: var(--streak-gray); transition: color 0.3s ease, transform 0.15s ease-out, text-shadow 0.3s ease; display: inline-block; text-shadow: none; }
+#streak-container.has-streak #winningStreak { color: var(--streak-gold); text-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+#winningStreak.streak-pulse { animation: pulseStreak 0.4s ease-out forwards; }
 @keyframes pulseStreak { 0% { transform: scale(1); } 50% { transform: scale(1.35); text-shadow: 0 0 16px rgba(255, 215, 0, 0.7); } 100% { transform: scale(1); } }
 
-/* PC: Gruppierung der Controls */
-body.platform-pc #languageSelect,
-body.platform-pc #timer-label,
-body.platform-pc #backToStartBtn,
-body.platform-pc #showFlagListBtn {
-    margin: 0.5rem 0.75rem;
+/* PC: Gruppierung der Controls (ohne #controls div) */
+/* Wir verwenden Margins und text-align für die Anordnung */
+#languageSelect,
+#timer-label,
+#backToStartBtn,
+#showFlagListBtn {
+    margin: 0.5rem 0.75rem; /* Abstand um die einzelnen Controls */
 }
 
-body.platform-pc #toggle-switches-container {
-    display: flex;
+#toggle-switches-container {
+    display: flex; /* Toggles nebeneinander */
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem 1rem;
     align-items: center;
-    margin: 1rem auto;
+    margin: 1rem auto; /* Abstand über/unter dem Block */
 }
 
 /* PC: Styling für einzelne Controls */
-body.platform-pc #languageSelect,
-body.platform-pc #timer-label select {
+#languageSelect,
+#timer-label select {
   padding: 0.45rem 0.7rem;
   border-radius: var(--radius-input);
   border: 1.2px solid #d2d3dc;
@@ -92,13 +90,13 @@ body.platform-pc #timer-label select {
   outline: none;
   box-shadow: none;
 }
-body.platform-pc #languageSelect:focus,
-body.platform-pc #timer-label select:focus {
+#languageSelect:focus,
+#timer-label select:focus {
   border: 1.2px solid var(--color-primary);
   outline: 2px solid #a8c5ff;
 }
-body.platform-pc #timer-label {
-  display: inline-flex;
+#timer-label {
+  display: inline-flex; /* Damit es neben anderen Controls stehen kann */
   align-items: center;
   gap: 0.35em;
   font-size: 1.0rem;
@@ -106,20 +104,20 @@ body.platform-pc #timer-label {
   color: #3b466d;
 }
 
-/* PC: Toggle Switches */
-body.platform-pc .toggle-switch { position: relative; display: inline-flex; align-items: center; width: auto; height: 28px; cursor: pointer; user-select: none; gap: 0.6em; }
-body.platform-pc .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-body.platform-pc .slider { position: relative; width: 48px; height: 26px; background-color: #ccc; transition: .4s; border-radius: 26px; flex-shrink: 0; }
-body.platform-pc .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-body.platform-pc input:checked + .slider { background-color: var(--color-primary); }
-body.platform-pc input:checked + .slider:before { transform: translateX(22px); }
-body.platform-pc input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
-body.platform-pc .toggle-label { font-size: 1.0rem; font-weight: 500; color: #3b466d; white-space: nowrap; }
+/* PC: Toggle Switches (Layout über Container, Styling hier) */
+.toggle-switch { position: relative; display: inline-flex; align-items: center; width: auto; height: 28px; cursor: pointer; user-select: none; gap: 0.6em; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.slider { position: relative; width: 48px; height: 26px; background-color: #ccc; transition: .4s; border-radius: 26px; flex-shrink: 0; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--color-primary); }
+input:checked + .slider:before { transform: translateX(22px); }
+input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
+.toggle-label { font-size: 1.0rem; font-weight: 500; color: #3b466d; white-space: nowrap; }
 
 
 /* PC: Quiz Container */
-body.platform-pc #quiz {
-    display: inline-block; /* oder block, wenn es zentriert sein soll */
+#quiz {
+    display: inline-block;
     background: var(--color-card);
     padding: 2.4rem 2.1rem 2.3rem 2.1rem;
     border-radius: var(--radius-main);
@@ -128,16 +126,16 @@ body.platform-pc #quiz {
     max-width: 98vw;
     transition: box-shadow var(--transition-speed);
     text-align: center;
-    width: auto;
-    margin-top: 1.5rem;
+    width: auto; /* Breite automatisch auf PC */
+    margin-top: 1.5rem; /* Abstand zu den oberen Controls */
 }
 
 /* PC: Flaggen Container */
-body.platform-pc #flag-container {
-  width: 340px;
-  max-width: 100%;
-  height: 204px;
-  aspect-ratio: unset;
+#flag-container {
+  width: 340px; /* Feste Breite auf PC */
+  max-width: 100%; /* Verhindert Überlaufen im Quiz-Container */
+  height: 204px; /* Feste Höhe auf PC */
+  aspect-ratio: unset; /* Kein festes Seitenverhältnis auf PC */
   margin: 0 auto 1.5rem;
   overflow: hidden;
   background: #f0f3fa;
@@ -145,86 +143,8 @@ body.platform-pc #flag-container {
   position: relative;
   box-shadow: 0 0.5px 6px rgba(32,60,140,0.07);
 }
-body.platform-pc #flag-container img { width: 100%; height: 100%; object-fit: contain; transition: filter var(--transition-speed), transform var(--transition-speed); filter: none; transform-origin: center center; image-rendering: auto; background: #f3f3f3; border-radius: inherit; box-shadow: none; display: block; }
-body.platform-pc .flag-blackout { display: none; background: #111; opacity: 0.98; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 3; border-radius: inherit; }
-
-/* === NEU/VERBESSERT: Input Feld Styling (gilt für beide Plattformen, falls nicht überschrieben) === */
-#guessInput {
-  display: block; /* Stellt sicher, dass es die volle Breite einnimmt und margin auto funktioniert */
-  width: 90%; /* Relative Breite innerhalb des Quiz-Containers */
-  max-width: 350px; /* Maximale Breite für Lesbarkeit */
-  min-width: 180px; /* Mindestbreite */
-  margin: 0.4rem auto 1rem auto; /* Zentriert horizontal, mehr Abstand unten */
-  padding: 0.8rem 1rem; /* Mehr Innenabstand */
-  font-size: 1.14rem; /* Beibehaltung der Schriftgröße */
-  font-family: inherit; /* Schriftart vom Body übernehmen */
-  color: var(--color-text); /* Textfarbe */
-  background-color: #fff; /* Hintergrund */
-  border: 1.5px solid var(--color-border-input); /* Dezenter Standardrahmen */
-  border-radius: var(--radius-input); /* Einheitlicher Radius */
-  box-shadow: none; /* Kein Standard-Schatten */
-  outline: none; /* Browser-Outline entfernen */
-  transition: border-color var(--transition-speed) ease-out, box-shadow var(--transition-speed) ease-out; /* Sanfter Übergang */
-  appearance: none; /* Browser-Styling zurücksetzen */
-}
-
-#guessInput::placeholder {
-  color: var(--color-placeholder); /* Farbe für Platzhalter */
-  opacity: 0.8; /* Leicht transparent */
-  /* font-style: italic; */ /* Optional: kursiv */
-}
-
-#guessInput:focus {
-  border-color: var(--color-primary); /* Rahmenfarbe im Fokus */
-  box-shadow: 0 0 0 3.5px var(--color-primary-light); /* Leuchtender Schatten im Fokus */
-}
-/* === Ende Input Feld Styling === */
-
-
-/* PC: Buttons im Quiz */
-body.platform-pc #quiz button {
-    padding: 0.7rem 1.5rem;
-    margin: 0.35rem 0.35rem;
-    cursor: pointer;
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-button);
-    font-weight: 600;
-    font-size: 1.08rem;
-    transition: background var(--transition-speed), box-shadow var(--transition-speed);
-    box-shadow: 0 1.1px 4px 0 rgba(32,96,255,0.09);
-    outline: none;
-}
-body.platform-pc #quiz button:hover,
-body.platform-pc #quiz button:focus {
-    background: var(--color-primary-hover);
-    box-shadow: 0 2.2px 10px 0 rgba(32,96,255,0.15);
-}
-body.platform-pc #result {
-    margin-top: 0.6rem;
-    min-height: 1.2rem;
-    font-weight: bold;
-    font-size: 1.09rem;
-}
-
-/* PC: Styling für #showFlagListBtn und #backToStartBtn */
-body.platform-pc #showFlagListBtn {
-    border-radius: 8px; font-size: 1.03em; background: #e7eefd; color: #2040aa; font-weight: 600; border: 1.2px solid #d5def6; transition: background 0.13s, color 0.13s; padding: 0.48em 1.2em;
-}
-body.platform-pc #showFlagListBtn:hover,
-body.platform-pc #showFlagListBtn:focus {
-    background: #d3e0fd; color: #1544aa;
-}
-body.platform-pc #backToStartBtn {
-    background: #e8edfc; color: #1b3b8a; border: 1.2px solid #c5d4f0; font-size: 1.03em; border-radius: 7px; font-weight: 600; padding: 0.48em 1.2em; transition: background 0.16s, color 0.11s;
-}
-body.platform-pc #backToStartBtn:hover,
-body.platform-pc #backToStartBtn:focus {
-    background: #cbe0fc; color: var(--color-primary-hover);
-}
-
-
+#flag-container img { width: 100%; height: 100%; object-fit: contain; transition: filter var(--transition-speed), transform var(--transition-speed); filter: none; transform-origin: center center; image-rendering: auto; background: #f3f3f3; border-radius: inherit; box-shadow: none; display: block; }
+.flag-blackout { display: none; background: #111; opacity: 0.98; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 3; border-radius: inherit; }
 /* Flaggen Effekte (unverändert) */
 #flag-container.grayscale img { filter: grayscale(100%); }
 #flag-container.invert img { filter: invert(100%); }
@@ -237,6 +157,18 @@ body.platform-pc #backToStartBtn:focus {
 #flag-container.glitch img { animation: glitch 0.88s steps(2) infinite; }
 @keyframes glitch { 0%, 50%, 100% { clip-path: inset(0% 0% 0% 0%); transform: translate(0,0); } 10% { clip-path: inset(35% 0% 30% 0%); transform: translate(-5px, -5px); } 20% { clip-path: inset(15% 0% 45% 0%); transform: translate(7px, 5px); } 30% { clip-path: inset(40% 0% 10% 0%); transform: translate(-7px, 5px); } 40% { clip-path: inset(22% 0% 27% 0%); transform: translate(11px, -3px); } }
 
+
+/* PC: Input und Buttons im Quiz */
+#guessInput { min-width: 180px; max-width: 350px; margin-top: 0.4rem; margin-bottom: 0.45rem; font-size: 1.14rem; width: 90%; }
+#quiz button { padding: 0.7rem 1.5rem; margin: 0.35rem 0.35rem; cursor: pointer; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-button); font-weight: 600; font-size: 1.08rem; transition: background var(--transition-speed), box-shadow var(--transition-speed); box-shadow: 0 1.1px 4px 0 rgba(32,96,255,0.09); outline: none; }
+#quiz button:hover, #quiz button:focus { background: var(--color-primary-hover); box-shadow: 0 2.2px 10px 0 rgba(32,96,255,0.15); }
+#result { margin-top: 0.6rem; min-height: 1.2rem; font-weight: bold; font-size: 1.09rem; }
+
+/* PC: Styling für #showFlagListBtn und #backToStartBtn */
+#showFlagListBtn { border-radius: 8px; font-size: 1.03em; background: #e7eefd; color: #2040aa; font-weight: 600; border: 1.2px solid #d5def6; transition: background 0.13s, color 0.13s; padding: 0.48em 1.2em; }
+#showFlagListBtn:hover, #showFlagListBtn:focus { background: #d3e0fd; color: #1544aa; }
+#backToStartBtn { background: #e8edfc; color: #1b3b8a; border: 1.2px solid #c5d4f0; font-size: 1.03em; border-radius: 7px; font-weight: 600; padding: 0.48em 1.2em; transition: background 0.16s, color 0.11s, box-shadow 0.16s; }
+#backToStartBtn:hover, #backToStartBtn:focus { background: #cbe0fc; color: var(--color-primary-hover); box-shadow: 0 1px 4px rgba(68, 97, 165, 0.1); }
 
 /* == Modale etc. (unverändert) == */
 .flag-list-modal { position: fixed; z-index: 11000; top: 0; left: 0; right: 0; bottom: 0; }
@@ -308,12 +240,13 @@ body.platform-android #quiz {
     margin-right: auto;
 }
 
-/* Reihenfolge der Elemente in main auf Android (Flexbox order) */
+/* Reihenfolge der Elemente in main auf Android */
 body.platform-android #toggle-switches-container { order: 0; }
 body.platform-android #timer-label { order: 1; }
 body.platform-android #quiz { order: 2; }
 body.platform-android #streak-container { order: 3; }
-body.platform-android #showFlagListBtn { order: 4; margin-top: 0; }
+body.platform-android #showFlagListBtn { order: 4; margin-top: 0; /* Entferne Standard-Margin */ }
+/* Leerraum wird durch main gap geregelt */
 body.platform-android #languageSelect { order: 5; }
 body.platform-android #backToStartBtn { order: 6; }
 
@@ -321,98 +254,66 @@ body.platform-android #backToStartBtn { order: 6; }
 
 body.platform-android #toggle-switches-container {
     display: flex;
-    flex-direction: column; /* Untereinander */
+    flex-direction: column;
     align-items: flex-start; /* Linksbündig innen */
     gap: 0.8rem;
     margin-bottom: 0; /* Abstand durch main gap */
 }
 body.platform-android .toggle-switch {
-    width: 100%; /* Volle Breite des Containers */
-    justify-content: space-between; /* Schiebt Label nach rechts */
+    width: 100%;
+    justify-content: flex-start;
 }
-body.platform-android .toggle-label {
-    margin-left: 0; /* Kein extra Abstand, da space-between */
-}
-
 
 body.platform-android #timer-label {
     display: flex;
-    justify-content: space-between; /* Label links, Select rechts */
+    justify-content: flex-start;
     align-items: center;
     text-align: left;
     margin-bottom: 0;
-    width: 100%; /* Volle Breite */
 }
 body.platform-android #timer-label select {
-    margin-left: 0.5rem; /* Kleiner Abstand zum Label */
+    margin-left: 0.5rem;
 }
 
 body.platform-android #languageSelect {
     text-align: left;
     margin-bottom: 0;
-    padding: 0.6em 0.7em;
-    width: 100%; /* Volle Breite */
+    padding: 0.6em 0.7em; /* Etwas mehr Padding */
 }
 
 body.platform-android #quiz {
     padding: 1.5rem 1rem;
-    min-width: 0; /* Wichtig, damit es schrumpfen kann */
+    min-width: 0;
     margin-bottom: 0;
-    width: 100%; /* Volle Breite */
 }
 
 body.platform-android #flag-container {
-    height: auto; /* Höhe automatisch anpassen */
-    aspect-ratio: 5 / 3; /* Seitenverhältnis beibehalten */
-    max-height: 220px; /* Maximale Höhe begrenzen */
-    width: 100%; /* Volle Breite des Quiz-Containers */
-    max-width: 100%; /* Verhindert Überlauf */
-    margin-bottom: 1rem; /* Etwas Abstand zum Input */
+    height: auto;
+    aspect-ratio: 5 / 3;
+    max-height: 220px;
+    width: 100%;
+    max-width: 100%;
 }
-/* Kein spezifisches img Styling für Android nötig, erbt von PC */
-body.platform-android .flag-blackout { /* Erbt von PC */ }
-
 
 body.platform-android #streak-container {
-     position: static; /* Nicht mehr absolut */
-     order: 3; /* Position in der Flexbox-Reihenfolge */
-     width: auto; /* Breite automatisch */
-     text-align: center; /* Text zentrieren */
-     margin-top: 0; /* Abstand durch main gap */
+     position: static;
+     width: auto;
+     text-align: center;
+     margin-top: 0;
      margin-bottom: 0;
-     display: block; /* Sicherstellen, dass es ein Block ist */
+     display: block;
+     font-size: 2.5rem; /* Etwas kleiner */
 }
-body.platform-android #winningStreak {
-     font-size: 2.5rem; /* Etwas kleiner auf Mobilgeräten */
-}
-body.platform-android #streak-container span[data-i18n="winStreak"] {
-     display: inline; /* Label anzeigen auf Android */
-     margin-right: 0.5em;
-     font-size: 1.2rem; /* Kleinere Schriftgröße für Label */
-     color: #556080;
-     vertical-align: middle;
-}
-body.platform-android #winningStreak {
-     vertical-align: middle;
-}
-
 
 /* Buttons auf Android volle Breite */
 body.platform-android #showFlagListBtn,
 body.platform-android #backToStartBtn {
      display: block;
-     width: 100%; /* Volle Breite */
-     max-width: 450px; /* Max Breite wie andere Elemente */
-     margin: 0 auto; /* Zentrieren */
+     width: 100%;
+     margin: 0; /* Keine extra Margins */
      padding: 0.8em 1.5em; /* Etwas größeres Padding */
-}
-/* Spezifisches Button Styling für Android (optional, falls abweichend von PC nötig) */
-body.platform-android #quiz button {
-    padding: 0.8rem 1.2rem; /* Ggf. Padding anpassen */
-    font-size: 1.05rem; /* Ggf. Schriftgröße anpassen */
-}
-body.platform-android #result {
-    font-size: 1.05rem; /* Ggf. Schriftgröße anpassen */
 }
 
 /* --- ENDE ANDROID-SPEZIFISCHE ANPASSUNGEN --- */
+
+/* --- END OF FILE style.css --- */
