@@ -32,21 +32,18 @@ body {
   font-family: 'Inter', system-ui, Arial, sans-serif;
   background: var(--color-bg);
   color: var(--color-text);
-  text-align: center; /* Default text alignment for body/main */
+  text-align: center;
   min-height: 100vh;
   position: relative;
 }
 
-/* == Standard (PC) Layout == */
-/* Elements are stacked blocks by default on PC, centered via margin: auto */
+/* ======================== */
+/* == Standard PC Layout == */
+/* ======================== */
 main {
   padding: 3.5rem 1rem 3rem 1rem;
   max-width: 900px; /* Maximale Breite für den Hauptinhalt auf PC */
   margin: 0 auto; /* Zentriert den Hauptinhalt */
-  display: flex; /* Use flex to control vertical stacking easily */
-  flex-direction: column;
-  align-items: center; /* Center items horizontally */
-  gap: 1.5rem; /* Consistent vertical spacing between main sections */
 }
 
 main h1[data-i18n="title"] { display: none; }
@@ -58,10 +55,6 @@ main h1[data-i18n="title"] { display: none; }
   right: 1.5rem;
   z-index: 100;
   text-align: right;
-  /* Remove flex/block/margin rules applied by main > * */
-  display: block; /* Needs to be a block for width/text-align */
-  margin: 0; /* Important to remove auto margins */
-  align-self: auto; /* Reset align-items from parent flex */
 }
 #streak-container span[data-i18n="winStreak"] { display: none; }
 #winningStreak { font-family: 'Poppins', 'Inter', sans-serif; font-weight: 700; font-size: 2.8rem; line-height: 1; color: var(--streak-gray); transition: color 0.3s ease, transform 0.15s ease-out, text-shadow 0.3s ease; display: inline-block; text-shadow: none; }
@@ -69,178 +62,143 @@ main h1[data-i18n="title"] { display: none; }
 #winningStreak.streak-pulse { animation: pulseStreak 0.4s ease-out forwards; }
 @keyframes pulseStreak { 0% { transform: scale(1); } 50% { transform: scale(1.35); text-shadow: 0 0 16px rgba(255, 215, 0, 0.7); } 100% { transform: scale(1); } }
 
+/* PC: "Kontroll-Leiste" oben (nicht mehr in #controls) */
+/* Wir erstellen einen virtuellen Container für die oberen Elemente */
+#languageSelect,
+#timer-label,
+#backToStartBtn {
+    margin: 0.5rem 0.75rem; /* Abstand um die einzelnen Controls */
+}
 
-/* PC: Toggle Switches Container (kept as flex) */
+/* PC: Toggle Switches Container */
 #toggle-switches-container {
-    display: flex; /* Override the default block behavior from main flex */
+    display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem 1rem;
     align-items: center;
-    margin: 0 auto; /* Center the flex container itself */
-    width: 100%; /* Allow container to shrink/grow */
-    max-width: 700px; /* Max width for the toggles block */
-    align-self: center; /* Ensure it's centered within main's cross axis */
+    margin: 1.5rem auto 1rem auto; /* Abstand über/unter dem Block */
+    /* order wird ignoriert, da main kein Flex-Container ist */
 }
-/* Toggle label nowrap to prevent wrapping inside switch */
-.toggle-switch .toggle-label { white-space: nowrap; }
 
-
-/* PC: Timer & Language Select (stacked blocks) */
-#timer-label,
-#languageSelect {
-    display: block; /* Stack them */
-    margin: 0 auto; /* Center */
-    width: 100%; /* Take full width up to max-width */
-    max-width: 380px; /* Limit width */
-    align-self: center; /* Center within main */
-    text-align: left; /* Align text inside */
-    padding: 0.6em 0.7em; /* Consistent padding */
-    border-radius: var(--radius-input); /* Match input/select style */
-    border: 1.2px solid #d2d3dc; /* Match style */
-    background: #f9fbff; /* Match style */
-    font-size: 1.0rem; /* Match style */
-    color: #3b466d; /* Match timer label color */
-    font-weight: 500; /* Match timer label weight */
-}
-/* Specific adjustments for timer-label's flex content */
-#timer-label {
-    display: flex; /* Keep label and select inline */
-    justify-content: flex-start; /* Align contents left */
-    align-items: center;
-    gap: 0.35em;
-    /* background/border/padding/font inherited from rule above */
-}
+/* PC: Styling für Selects und Labels */
+#languageSelect,
 #timer-label select {
-    padding: 0; /* Remove padding from select if parent has it */
-    border: none; /* Remove border from select if parent has it */
-    background: none; /* Remove background from select */
-    font-size: 1.0rem; /* Keep font size */
-    color: inherit; /* Inherit color from parent */
-    font-family: inherit;
-    flex-grow: 1; /* Allow select to take available space */
-    min-width: 0; /* Allow select to shrink */
-    outline: none; /* Remove outline, parent label handles focus visual */
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius-input);
+  border: 1.2px solid #d2d3dc;
+  background: #f9fbff;
+  font-size: 1.0rem;
+  transition: outline var(--transition-speed), border var(--transition-speed);
+  outline: none;
+  box-shadow: none;
 }
+#languageSelect:focus,
 #timer-label select:focus {
-    outline: none; /* Focus handled by parent label */
+  border: 1.2px solid var(--color-primary);
+  outline: 2px solid #a8c5ff;
 }
-#timer-label:focus-within { /* Add focus style to the label wrapper */
-     border: 1.2px solid var(--color-primary);
-     outline: 2px solid #a8c5ff;
+#timer-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 1.0rem;
+  font-weight: 500;
+  color: #3b466d;
 }
 
-#languageSelect {
-     /* background/border/padding/font inherited from rule above */
-}
+/* PC: Toggle Switches Styling */
+.toggle-switch { position: relative; display: inline-flex; align-items: center; width: auto; height: 28px; cursor: pointer; user-select: none; gap: 0.6em; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.slider { position: relative; width: 48px; height: 26px; background-color: #ccc; transition: .4s; border-radius: 26px; flex-shrink: 0; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--color-primary); }
+input:checked + .slider:before { transform: translateX(22px); }
+input:focus + .slider { box-shadow: 0 0 1px var(--color-primary); }
+.toggle-label { font-size: 1.0rem; font-weight: 500; color: #3b466d; white-space: nowrap; }
 
-
-/* PC: Quiz Container (stacked block) */
+/* PC: Quiz Container */
 #quiz {
-    display: block; /* Make it a block */
+    display: inline-block;
     background: var(--color-card);
     padding: 2.4rem 2.1rem 2.3rem 2.1rem;
     border-radius: var(--radius-main);
     box-shadow: var(--shadow-card);
-    min-width: 364px; /* Keep min-width */
-    max-width: 400px; /* Keep max-width */
+    min-width: 364px;
+    max-width: 98vw;
     transition: box-shadow var(--transition-speed);
-    text-align: center; /* Center content inside */
-    width: 100%; /* Take full width up to max-width */
-    margin: 1.5rem auto; /* Center and add vertical space */
-    align-self: center; /* Center within main */
+    text-align: center;
+    width: auto;
+    margin-top: 1.5rem;
+    /* order wird ignoriert */
 }
 
-/* Elements inside quiz (adjusting to quiz being a block) */
+/* PC: Flaggen Container */
 #flag-container {
-  width: 340px; /* Feste Breite auf PC */
-  max-width: 100%; /* Verhindert Überlaufen im Quiz-Container */
-  height: 204px; /* Feste Höhe auf PC */
-  aspect-ratio: unset; /* Kein festes Seitenverhältnis auf PC */
-  margin: 0 auto 1.5rem auto; /* Center flag container */
-  /* other styles remain */
+  width: 340px;
+  max-width: 100%;
+  height: 204px;
+  aspect-ratio: unset;
+  margin: 0 auto 1.5rem;
+  overflow: hidden;
+  background: #f0f3fa;
+  border-radius: 11px;
+  position: relative;
+  box-shadow: 0 0.5px 6px rgba(32,60,140,0.07);
 }
-#guessInput {
-  display: block; /* Make input a block */
-  margin: 0.4rem auto 0.45rem auto; /* Center input */
-  font-size: 1.14rem;
-  width: 90%; /* Take 90% of parent (#quiz) width */
-  max-width: 350px; /* Absolute max width */
-  padding: 0.65em 0.9em; /* Consistent padding */
-  border-radius: var(--radius-input);
-  border: 1.2px solid #d2d3dc;
-  background: #f9fbff;
-  outline: none;
-  transition: border var(--transition-speed), outline var(--transition-speed), box-shadow var(--transition-speed);
-  box-shadow: none;
-}
-#guessInput:focus {
-    border: 1.2px solid var(--color-primary);
-    outline: 2px solid #a8c5ff;
-    box-shadow: 0 1px 3px rgba(32,96,255,0.1);
-}
+#flag-container img { width: 100%; height: 100%; object-fit: contain; transition: filter var(--transition-speed), transform var(--transition-speed); filter: none; transform-origin: center center; image-rendering: auto; background: #f3f3f3; border-radius: inherit; box-shadow: none; display: block; }
+.flag-blackout { display: none; background: #111; opacity: 0.98; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 3; border-radius: inherit; }
+/* Flaggen Effekte (unverändert) */
+#flag-container.grayscale img { filter: grayscale(100%); }
+#flag-container.invert img { filter: invert(100%); }
+#flag-container.grayscale.invert img, #flag-container.invert.grayscale img { filter: grayscale(100%) invert(100%); }
+#flag-container.pixelate img { filter: blur(5px); }
+#flag-container.pixelate.grayscale img { filter: grayscale(100%) blur(5px); }
+#flag-container.pixelate.invert img { filter: invert(100%) blur(5px); }
+#flag-container.pixelate.grayscale.invert img, #flag-container.pixelate.invert.grayscale img { filter: grayscale(100%) invert(100%) blur(5px); }
+#flag-container.glitch img { animation: glitch 0.88s steps(2) infinite; }
+@keyframes glitch { 0%, 50%, 100% { clip-path: inset(0% 0% 0% 0%); transform: translate(0,0); } 10% { clip-path: inset(35% 0% 30% 0%); transform: translate(-5px, -5px); } 20% { clip-path: inset(15% 0% 45% 0%); transform: translate(7px, 5px); } 30% { clip-path: inset(40% 0% 10% 0%); transform: translate(-7px, 5px); } 40% { clip-path: inset(22% 0% 27% 0%); transform: translate(11px, -3px); } }
 
-#quiz button {
-    display: inline-block; /* Keep buttons inline */
-    padding: 0.7rem 1.5rem;
-    margin: 0.35rem;
-    cursor: pointer;
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-button);
-    font-weight: 600;
-    font-size: 1.08rem;
-    transition: background var(--transition-speed), box-shadow var(--transition-speed);
-    box-shadow: 0 1.1px 4px 0 rgba(32,96,255,0.09);
-    outline: none;
-}
+
+/* PC: Input und Buttons im Quiz */
+#guessInput { min-width: 180px; max-width: 350px; margin-top: 0.4rem; margin-bottom: 0.45rem; font-size: 1.14rem; width: 90%; }
+#quiz button { padding: 0.7rem 1.5rem; margin: 0.35rem 0.35rem; cursor: pointer; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-button); font-weight: 600; font-size: 1.08rem; transition: background var(--transition-speed), box-shadow var(--transition-speed); box-shadow: 0 1.1px 4px 0 rgba(32,96,255,0.09); outline: none; }
 #quiz button:hover, #quiz button:focus { background: var(--color-primary-hover); box-shadow: 0 2.2px 10px 0 rgba(32,96,255,0.15); }
-#result {
-    display: block; /* Make result a block */
-    margin: 0.6rem auto 0 auto; /* Center result text */
-    min-height: 1.2rem;
-    font-weight: bold;
-    font-size: 1.09rem;
-}
+#result { margin-top: 0.6rem; min-height: 1.2rem; font-weight: bold; font-size: 1.09rem; }
 
-
-/* PC: Styling for #showFlagListBtn and #backToStartBtn (stacked blocks) */
-#showFlagListBtn,
-#backToStartBtn {
-     display: block; /* Stack them */
-     margin: 0.6rem auto; /* Center horizontally, add vertical space */
-     width: 100%; /* Take full width up to max-width */
-     max-width: 380px; /* Limit width */
-     align-self: center; /* Center within main */
-     padding: 0.8em 1.5em; /* Button padding */
-     font-size: 1.03em; /* Button font size */
-     font-weight: 600;
-     border-radius: 7px;
-     cursor: pointer;
-     transition: background 0.16s, color 0.11s, box-shadow 0.16s;
-     outline: none;
-}
+/* PC: Styling für #showFlagListBtn und #backToStartBtn */
 #showFlagListBtn {
+    display: inline-block; /* Nicht block auf PC */
+    margin-top: 1.5rem; /* Abstand zum Quiz */
+    border-radius: 8px;
+    font-size: 1.03em;
     background: #e7eefd;
     color: #2040aa;
+    font-weight: 600;
     border: 1.2px solid #d5def6;
+    transition: background 0.13s, color 0.13s;
+    padding: 0.48em 1.2em;
 }
-#showFlagListBtn:hover, #showFlagListBtn:focus { background: #d3e0fd; color: #1544aa; box-shadow: 0 1px 4px rgba(68, 97, 165, 0.1); }
+#showFlagListBtn:hover, #showFlagListBtn:focus { background: #d3e0fd; color: #1544aa; }
 
 #backToStartBtn {
+    display: inline-block;
     background: #e8edfc;
     color: #1b3b8a;
     border: 1.2px solid #c5d4f0;
+    font-size: 1.03em;
+    border-radius: 7px;
+    font-weight: 600;
+    padding: 0.48em 1.2em;
+    transition: background 0.16s, color 0.11s;
 }
-#backToStartBtn:hover, #backToStartBtn:focus { background: #dce6fa; color: var(--color-primary-hover); box-shadow: 0 1px 4px rgba(68, 97, 165, 0.1); }
-
+#backToStartBtn:hover, #backToStartBtn:focus { background: #cbe0fc; color: var(--color-primary-hover); }
 
 /* == Modale etc. (unverändert) == */
 .flag-list-modal { position: fixed; z-index: 11000; top: 0; left: 0; right: 0; bottom: 0; }
 .flag-list-modal-backdrop { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--modal-bg); cursor: pointer; }
 .flag-list-modal-content { position: absolute; background: #fff; top: 50%; left: 50%; width: 99vw; max-width: 960px; max-height: 92vh; overflow-y: auto; border-radius: 18px; transform: translate(-50%, -50%); box-shadow: 0 8px 34px rgba(32,44,99,0.16); padding: 2.1rem 2rem 1.4rem 2rem; text-align: left; animation: modalIn .23s; font-size: 1.08rem; }
-@media (max-width: 728px) { .flag-list-modal-content { padding: 1.2rem 0.6rem 0.7rem 0.7rem; width: 98vw; min-width: 0; font-size: 0.98rem; } #quiz { padding: 1.1rem 0.3rem 1.4rem 0.3rem;} } /* Quiz padding angepasst für Modale */
+@media (max-width: 728px) { .flag-list-modal-content { padding: 1.2rem 0.6rem 0.7rem 0.7rem; width: 98vw; min-width: 0; font-size: 0.98rem; } /* #quiz padding entfernt, da es jetzt für Android/PC unterschiedlich ist */ }
 @keyframes modalIn { from { opacity: 0; transform: translate(-50%, -48%) scale(0.96);} to { opacity: 1; transform: translate(-50%, -50%) scale(1);} }
 .close-flag-list { position: absolute; right: 1.3rem; top: 1.3rem; background: #f2f7fe; border: none; border-radius: 50%; width: 39px; height: 39px; font-size: 1.95em; color: #67739c; cursor: pointer; transition: background 0.16s; z-index: 2; display: flex; align-items: center; justify-content: center; font-weight: 700; }
 .close-flag-list:hover { background: #d4e2ff; color: #203daf; }
@@ -261,7 +219,6 @@ main h1[data-i18n="title"] { display: none; }
 .flag-hover-popup.info-redesign .flag-detail-row span:not(.flag-detail-label):not(b) { color: #152640; font-weight: 450; letter-spacing: 0.01em; word-break: break-word; }
 @media (max-width: 728px) { .flag-hover-popup.info-redesign { max-width: 97vw; padding: 0.6em 0.4em 0.7em 0.6em; } .flag-hover-popup.info-redesign .flag-hover-img img { width: 96px; height: auto; max-height: 70px; } .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 110px); } }
 @media (max-width: 430px) { .flag-hover-popup.info-redesign .flag-hover-img img { width: 68px; height: auto; max-height: 50px;} .flag-hover-popup.info-redesign { padding: 0.34em 0.2em 0.44em 0.22em; font-size: 0.95em;} .flag-hover-popup.info-redesign .flag-hover-meta { max-width: calc(97vw - 80px); } }
-
 
 /* == Start Screen (unverändert) == */
 #start-screen { position: fixed; z-index: 12001; inset: 0; background: linear-gradient(135deg, #e3eeff 0%, #e8f1fe 50%, #f9fafd 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; min-width: 100vw; transition: opacity .25s; }
@@ -290,8 +247,9 @@ body.platform-android main {
     display: flex;
     flex-direction: column;
     align-items: center; /* Zentriert alle direkten Kinder horizontal */
-    padding: 1.5rem 0.5rem 2rem 0.5rem;
-    gap: 1.5rem; /* Vertikaler Abstand zwischen den Hauptblöcken */
+    padding: 1.5rem 1rem 2rem 1rem; /* Angepasstes Padding */
+    gap: 1.2rem; /* Vertikaler Abstand zwischen den Hauptblöcken */
+    max-width: 100%; /* Erlaubt volle Breite */
 }
 
 /* Definiere die Breite für die meisten Elemente auf Android */
@@ -302,9 +260,11 @@ body.platform-android #showFlagListBtn,
 body.platform-android #backToStartBtn,
 body.platform-android #quiz {
     width: 100%; /* Volle Breite nutzen */
-    max-width: 450px; /* Maximale Breite für Lesbarkeit */
+    max-width: 480px; /* Maximale Breite für Lesbarkeit auf schmalen Geräten */
     margin-left: auto; /* Stellt Zentrierung sicher, falls max-width greift */
     margin-right: auto;
+    margin-top: 0; /* Abstand wird durch main gap geregelt */
+    margin-bottom: 0;
 }
 
 /* Reihenfolge der Elemente in main auf Android */
@@ -312,7 +272,7 @@ body.platform-android #toggle-switches-container { order: 0; }
 body.platform-android #timer-label { order: 1; }
 body.platform-android #quiz { order: 2; }
 body.platform-android #streak-container { order: 3; }
-body.platform-android #showFlagListBtn { order: 4; margin-top: 0; /* Entferne Standard-Margin */ }
+body.platform-android #showFlagListBtn { order: 4; }
 /* Leerraum wird durch main gap geregelt */
 body.platform-android #languageSelect { order: 5; }
 body.platform-android #backToStartBtn { order: 6; }
@@ -323,8 +283,8 @@ body.platform-android #toggle-switches-container {
     display: flex;
     flex-direction: column;
     align-items: flex-start; /* Linksbündig innen */
-    gap: 0.8rem;
-    margin-bottom: 0; /* Abstand durch main gap */
+    gap: 0.9rem; /* Etwas mehr Abstand */
+    padding: 0 0.5rem; /* Kleiner seitlicher Einzug für die Toggles */
 }
 body.platform-android .toggle-switch {
     width: 100%;
@@ -336,92 +296,47 @@ body.platform-android #timer-label {
     justify-content: flex-start;
     align-items: center;
     text-align: left;
-    margin-bottom: 0;
-    padding: 0.6em 0.7em; /* Match other inputs/selects */
-    border-radius: var(--radius-input);
-    border: 1.2px solid #d2d3dc;
-    background: #f9fbff;
-    font-size: 1.0rem;
-    color: #3b466d;
-    font-weight: 500;
-}
-body.platform-android #timer-label span {
-    /* Default font size */
+    padding: 0 0.5rem; /* Konsistenter Einzug */
 }
 body.platform-android #timer-label select {
-    padding: 0.45rem 0.7rem; /* Specific padding for select */
-    border: none; /* Remove border from select */
-    background: none; /* Remove background from select */
-    font-size: 1.0rem; /* Keep font size */
-    color: inherit; /* Inherit color from parent */
-    font-family: inherit;
-    flex-grow: 1; /* Allow select to take available space */
-    min-width: 0; /* Allow select to shrink */
-    outline: none;
+    margin-left: 0.5rem;
 }
-body.platform-android #timer-label:focus-within { /* Add focus style to the label wrapper */
-     border: 1.2px solid var(--color-primary);
-     outline: 2px solid #a8c5ff;
-}
-
 
 body.platform-android #languageSelect {
     text-align: left;
-    margin-bottom: 0;
-    padding: 0.6em 0.7em; /* Match other inputs/selects */
-    border-radius: var(--radius-input);
-    border: 1.2px solid #d2d3dc;
-    background: #f9fbff;
-    font-size: 1.0rem;
-    color: #3b466d;
-    font-weight: 500;
+    padding: 0.7em 0.8em; /* Größeres Padding */
 }
-
 
 body.platform-android #quiz {
     padding: 1.5rem 1rem;
     min-width: 0;
-    margin-bottom: 0;
-    /* max-width, box-shadow, border-radius etc from general quiz rule */
+    max-width: 95vw; /* Quiz darf etwas breiter sein */
 }
-body.platform-android #quiz #guessInput {
-     padding: 0.65em 0.9em; /* Match desktop input padding */
-     /* width, max-width, margin etc from general guessInput rule */
-}
-
 
 body.platform-android #flag-container {
     height: auto;
     aspect-ratio: 5 / 3;
     max-height: 220px;
     width: 100%;
-    max-width: 100%; /* Ensure it fits within quiz padding */
-    margin: 0 auto 1.5rem auto; /* Center flag */
+    max-width: 100%;
 }
 
 body.platform-android #streak-container {
-     position: static; /* Remove absolute positioning */
+     position: static; /* Position im Fluss */
      width: auto;
      text-align: center;
-     margin-top: 0; /* Space handled by main gap */
-     margin-bottom: 0;
      display: block;
      font-size: 2.5rem; /* Etwas kleiner */
-     align-self: center; /* Center within main flex */
-     /* background/border/padding? None needed here. */
+     /* margin wird durch main gap geregelt */
 }
 
-/* Buttons on Android full width */
+/* Buttons auf Android volle Breite */
 body.platform-android #showFlagListBtn,
 body.platform-android #backToStartBtn {
      display: block;
      width: 100%;
-     margin: 0; /* No extra Margins - gap in main handles spacing */
-     padding: 0.8em 1.5em; /* Match desktop button padding */
-     text-align: center; /* Center text within button */
-     /* font-size, font-weight, border-radius etc from desktop rules */
+     padding: 0.9em 1.5em; /* Größeres Padding für bessere Tappbarkeit */
 }
-
 
 /* --- ENDE ANDROID-SPEZIFISCHE ANPASSUNGEN --- */
 
