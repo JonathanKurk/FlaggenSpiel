@@ -396,18 +396,17 @@ function checkGuess() {
       loadNewFlag(); // Load next flag manually
       nextBtn.removeEventListener('click', nextBtnClickHandler); // Remove this temporary listener
   };
-  // Add the temporary listener only if the Next button isn't already set up by loadNewFlag
-  // (loadNewFlag enables and adds the permanent listener, checkGuess re-enables it and adds temp listener)
-  // A cleaner approach is to handle the permanent listener in setupUIListeners and just clear the timeout here.
-  // Let's stick to the provided pattern for now but note this could be refactored.
-   // Remove any existing temporary listener to avoid duplicates
-   const oldHandler = nextBtn.onclick; // This pattern isn't ideal, better use addEventListener with named function or check
-   if (oldHandler && oldHandler._isTempCheckGuessHandler) {
-        nextBtn.removeEventListener('click', oldHandler);
+  // Remove any previous temporary handlers attached by checkGuess
+   const previousHandler = nextBtn.onclick; // This only gets the *last* assigned handler if using .onclick = ...
+   if (previousHandler && previousHandler._isCheckGuessTemp) {
+       nextBtn.removeEventListener('click', previousHandler);
    }
-   nextBtn.addEventListener('click', nextBtnClickHandler);
-   // Mark the listener so we can potentially remove it later if needed (though better refactoring exists)
-   nextBtnClickHandler._isTempCheckGuessHandler = true;
+
+  // Add the new temporary handler
+  nextBtn.addEventListener('click', nextBtnClickHandler);
+  nextBtnClickHandler._isCheckGuessTemp = true; // Mark it
+
+
 }
 
 // Wendet die visuellen Effekte an
