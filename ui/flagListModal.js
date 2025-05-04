@@ -198,7 +198,12 @@ function positionFlagHoverPopup(e) {
     y = e.clientY - rect.height - margin;
   }
   if (x < margin) x = margin;
-  if (y < margin) y = margin;
+  if (y < margin) y = y + rect.height + margin; // Try displaying below if insufficient space above
+  if (y + rect.height > winHeight) { // If still too low, put above
+      y = e.clientY - rect.height - margin;
+  }
+   if (y < margin) y = margin; // Final check to prevent going off top
+
   popup.style.left = `${x}px`;
   popup.style.top = `${y}px`;
 }
