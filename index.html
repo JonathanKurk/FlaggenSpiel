@@ -18,24 +18,76 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Start Screen Overlay (unverändert) -->
+  <!-- Start Screen Overlay -->
   <div id="start-screen">
     <div class="start-content">
       <h1 id="start-title">Flaggen-Ratespiel</h1>
+
+      <!-- Sprachauswahl -->
       <div class="start-step" id="step-language">
-         <h2>Sprache wählen</h2>
-         <div class="lang-select-buttons">...</div>
+        <h2>Sprache wählen</h2>
+        <div class="lang-select-buttons">
+          <button class="lang-select-btn" data-lang="de">Deutsch</button>
+          <button class="lang-select-btn" data-lang="en">English</button>
+        </div>
       </div>
+
+      <!-- Modusauswahl -->
       <div class="start-step" id="step-mode" style="display:none;">
-         <h2 id="choose-mode-label">Modus wählen</h2>
-         <div class="mode-select-buttons">...</div>
-         <div class="back-button-container" style="margin-top: 1.5rem; text-align: center;">...</div>
+        <h2 id="choose-mode-label">Modus wählen</h2>
+        <div class="mode-select-buttons">
+          <button class="mode-select-btn" data-mode="all">
+            <span class="continent-abbr">ALL</span>
+            <span data-i18n="modeAll">Alle Länder</span>
+          </button>
+          <button class="mode-select-btn" data-mode="Europe">
+            <span class="continent-abbr">EU</span>
+            <span data-i18n="modeEurope">Nur Europa</span>
+          </button>
+          <button class="mode-select-btn" data-mode="Asia">
+            <span class="continent-abbr">AS</span>
+            <span data-i18n="modeAsia">Nur Asien</span>
+          </button>
+          <button class="mode-select-btn" data-mode="Africa">
+            <span class="continent-abbr">AF</span>
+            <span data-i18n="modeAfrica">Nur Afrika</span>
+          </button>
+          <button class="mode-select-btn" data-mode="South America">
+            <span class="continent-abbr">SA</span>
+            <span data-i18n="modeSouthAmerica">Nur Südamerika</span>
+          </button>
+          <button class="mode-select-btn" data-mode="North America">
+            <span class="continent-abbr">NA</span>
+            <span data-i18n="modeNorthAmerica">Nur Nordamerika</span>
+          </button>
+          <button class="mode-select-btn" data-mode="Oceania">
+            <span class="continent-abbr">OC</span>
+            <span data-i18n="modeOceania">Nur Australien & Ozeanien</span>
+          </button>
+        </div>
+
+        <!-- Zurück-Button -->
+        <div class="back-button-container" style="margin-top: 1.5rem; text-align: center;">
+            <button id="backToLanguageBtn" class="back-btn-secondary" type="button">
+                <span data-i18n="backToLanguageBtn">Zurück zur Sprachauswahl</span>
+            </button>
+        </div>
+
+      </div> <!-- Ende #step-mode -->
+    </div>
+  </div> <!-- Ende #start-screen -->
+
+  <!-- Plattformauswahl-Modal -->
+  <div id="platform-select-modal" class="platform-modal" style="display: none;">
+    <div class="platform-modal-content">
+      <h2>Auf welchem Gerät spielst du?</h2>
+      <p>Diese Einstellung beeinflusst das Layout leicht.</p>
+      <div class="platform-modal-buttons">
+        <button data-platform="pc">💻 PC / Desktop</button>
+        <button data-platform="android">📱 Android / Mobil</button>
       </div>
     </div>
   </div>
-
-  <!-- Plattformauswahl-Modal (unverändert) -->
-  <div id="platform-select-modal" class="platform-modal" style="display: none;">...</div>
 
   <!-- Haupt-Spielbereich -->
   <main style="display:none;">
