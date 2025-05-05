@@ -24,12 +24,12 @@ export function displayCurrentStreak() {
     const streakContainer = document.getElementById('streak-container');
     const currentModeStreak = winStreaks[selectedMode] || 0;
 
-    console.log(`Displaying streak for mode '${selectedMode}': ${currentModeStreak}`);
+    // console.log(`Displaying streak for mode '${selectedMode}': ${currentModeStreak}`); // Weniger gesprächig
 
     if (streakEl) {
         streakEl.textContent = currentModeStreak;
     } else {
-        console.warn("Element #winningStreak not found for display.");
+        // console.warn("Element #winningStreak not found for display."); // Nur bei Bedarf
     }
     if (streakContainer) {
         if (currentModeStreak > 0) {
@@ -38,7 +38,7 @@ export function displayCurrentStreak() {
             streakContainer.classList.remove('has-streak');
         }
     } else {
-         console.warn("Element #streak-container not found for class update.");
+         // console.warn("Element #streak-container not found for class update."); // Nur bei Bedarf
     }
 }
 
@@ -65,7 +65,9 @@ export function setupUIListeners() {
     }
   });
   document.getElementById('timeSelect').addEventListener('change', () => {
-    if (window.currentCountry && !document.getElementById('submitBtn').disabled) {
+    // Wenn gerade ein Spiel läuft (Flagge sichtbar, nicht blacked out), Timer neu anwenden
+    const flagImg = document.getElementById('flag');
+    if (window.currentCountry && flagImg && flagImg.style.visibility === 'visible' && !blackoutActive) {
        applyTimerToCurrentFlag();
     }
   });
@@ -88,11 +90,9 @@ export function setupUIListeners() {
 
   document.getElementById('backToStartBtn').addEventListener('click', () => {
       console.log("backToStartBtn (from game) clicked");
-      // Ruft showStartScreen ohne Argument auf, Standard ist jetzt 'mode'
       showStartScreen();
   });
 
-  // Initialen Streak-Wert anzeigen
   displayCurrentStreak();
 }
 
@@ -141,12 +141,7 @@ export function updateUserInterfaceForPlatform() {
     } else {
         body.classList.remove('platform-android');
     }
-
-    // Streak container position is now handled purely by CSS via the platform-android class
-    // The JS logic to move it relative to #controls is no longer needed or correct.
-
-    // Ensure streak display is updated after potential style changes
-    displayCurrentStreak();
+    displayCurrentStreak(); // Stellt sicher, dass der Streak korrekt angezeigt wird
 }
 
 // Lädt eine neue Flagge und setzt die UI zurück
@@ -154,7 +149,7 @@ export function loadNewFlag() {
   console.log("loadNewFlag: Using countriesForGame array with length:", countriesForGame.length);
   blackoutActive = false;
   flagRevealQueued = false;
-  clearTimeout(flagHideTimer);
+  clearTimeout(flagHideTimer); // Wichtig: Alten Timer löschen
 
   const flagContainer = document.getElementById('flag-container');
   const flagBlackout = document.getElementById('flag-blackout');
@@ -170,15 +165,13 @@ export function loadNewFlag() {
           resultEl.textContent = "Fehler: UI-Elemente fehlen.";
           resultEl.style.color = 'red';
       }
-      if(nextBtn) nextBtn.disabled = false; // Allow retrying
+      if(nextBtn) nextBtn.disabled = false;
       return;
   }
-
 
   flagContainer.classList.remove('blackout');
   flagBlackout.style.display = 'none';
 
-  // Temporarily hide flag and reset src/alt
   flagImg.style.visibility = 'hidden';
   flagImg.removeAttribute('src');
   flagImg.alt = '';
@@ -189,7 +182,7 @@ export function loadNewFlag() {
   submitBtn.disabled = true;
   nextBtn.disabled = true;
 
-  applyEffects(); // Apply effects immediately even before flag source is set
+  applyEffects();
 
   if (!countriesForGame || countriesForGame.length === 0) {
     console.error("loadNewFlag: No countries in countriesForGame array!");
@@ -208,30 +201,29 @@ export function loadNewFlag() {
   flagImg.alt = i18n[language].flagAlt(nameForAlt || 'Unbekannt');
   console.log("loadNewFlag: Selected country:", nameForAlt, country.flags?.svg);
 
-  flagRevealQueued = true; // Indicate that flag should be revealed on load
+  flagRevealQueued = true;
 
   if(country.flags?.svg) {
     flagImg.onload = function () {
       console.log("loadNewFlag: Flag loaded successfully:", flagImg.src);
-      if (flagRevealQueued) { // Check if still intended to reveal this flag
+      if (flagRevealQueued) {
         flagImg.style.visibility = 'visible';
         guessInput.disabled = false;
         submitBtn.disabled = false;
-        applyTimerToCurrentFlag(); // Start timer only after flag is visible
+        applyTimerToCurrentFlag();
         flagRevealQueued = false;
       }
-      flagImg.onload = null; // Clean up listener
-      flagImg.onerror = null; // Clean up listener
+      flagImg.onload = null;
+      flagImg.onerror = null;
     };
     flagImg.onerror = function() {
         console.error("loadNewFlag: Error loading flag image:", flagImg.src);
         resultEl.textContent = "Fehler beim Laden der Flagge.";
         resultEl.style.color = 'orange';
-        flagRevealQueued = false; // Cancel reveal
+        flagRevealQueued = false;
         flagImg.onload = null;
         flagImg.onerror = null;
-        nextBtn.disabled = false; // Allow user to try next
-        // Optionally auto-load next after a short delay
+        nextBtn.disabled = false;
         setTimeout(loadNewFlag, 1500);
     }
     flagImg.src = country.flags.svg;
@@ -239,61 +231,66 @@ export function loadNewFlag() {
       console.error("loadNewFlag: Flag SVG URL missing for country:", country);
       resultEl.textContent = "Fehler: Flaggenbild-URL fehlt.";
       resultEl.style.color = 'red';
-      flagRevealQueued = false; // Cancel reveal
-      nextBtn.disabled = false; // Allow user to try next
+      flagRevealQueued = false;
+      nextBtn.disabled = false;
   }
 }
 
 // Wendet den eingestellten Timer auf die aktuell sichtbare Flagge an
 function applyTimerToCurrentFlag() {
-    clearTimeout(flagHideTimer);
+    clearTimeout(flagHideTimer); // Immer alten Timer löschen
+
     const flagImg = document.getElementById('flag');
     const flagContainer = document.getElementById('flag-container');
     const flagBlackout = document.getElementById('flag-blackout');
     const nextBtn = document.getElementById('nextBtn');
-    const submitBtn = document.getElementById('submitBtn'); // Need submitBtn to re-enable
-
-    if (!flagImg || !flagContainer || !flagBlackout || !nextBtn || !submitBtn) {
-        console.warn("applyTimerToCurrentFlag: Required flag/button elements not found.");
-        return;
-    }
-
     const timeSelect = document.getElementById('timeSelect');
-    if (!timeSelect) {
-        console.warn("applyTimerToCurrentFlag: timeSelect element not found.");
-        nextBtn.disabled = false;
+
+    // Prüfen ob alle Elemente vorhanden sind
+    if (!flagImg || !flagContainer || !flagBlackout || !nextBtn || !timeSelect) {
+        console.warn("applyTimerToCurrentFlag: Required elements not found.");
+        if(nextBtn) nextBtn.disabled = false; // Sicherstellen, dass Spiel weitergeht
         return;
     }
 
-    // Only apply timer if flag is currently visible (prevents timer on error state)
+    // Nur starten, wenn Flagge sichtbar ist
     if (flagImg.style.visibility !== 'visible' || blackoutActive) {
        console.log("applyTimerToCurrentFlag: Flag not visible or already blacked out, timer not applied.");
-       nextBtn.disabled = false; // Ensure next is enabled if no timer starts
+       if(nextBtn) nextBtn.disabled = false;
        return;
     }
-
 
     const timeValue = timeSelect.value;
     if (timeValue !== "Infinity") {
         console.log(`Applying timer: ${timeValue}s`);
-        nextBtn.disabled = true; // Disable next while timer is active
+        nextBtn.disabled = true; // Next deaktivieren, während Timer läuft
+
         flagHideTimer = setTimeout(() => {
             blackoutActive = true;
             flagContainer.classList.add('blackout');
             flagBlackout.style.display = 'block';
             flagImg.style.visibility = 'hidden';
-            nextBtn.disabled = false; // Re-enable next after blackout
-            submitBtn.disabled = true; // Disable submit after blackout
-            document.getElementById('guessInput').disabled = true; // Disable input
-            console.log("Timer finished, flag hidden. Submit/Input disabled, Next enabled.");
+            nextBtn.disabled = false; // Next WIEDER aktivieren
+
+            // === KORREKTUR: DIESE ZEILEN ENTFERNEN ===
+            // submitBtn.disabled = true; // NICHT deaktivieren
+            // document.getElementById('guessInput').disabled = true; // NICHT deaktivieren
+            // === ENDE KORREKTUR ===
+
+            console.log("Timer finished, flag hidden. Submit/Input REMAIN enabled, Next enabled."); // Log angepasst
         }, Number(timeValue) * 1000);
+
     } else {
-        console.log("Timer set to Infinity, ensuring flag is visible.");
+        // Bei Infinity: Sicherstellen, dass kein Blackout aktiv ist
+        console.log("Timer set to Infinity, ensuring flag is visible and Next is enabled.");
         blackoutActive = false;
         flagContainer.classList.remove('blackout');
         flagBlackout.style.display = 'none';
-        flagImg.style.visibility = 'visible';
-        nextBtn.disabled = false; // Ensure next is enabled when no timer is active
+        // Flagge sollte schon sichtbar sein, aber zur Sicherheit:
+        if (flagImg.getAttribute('src')) { // Nur wenn eine Quelle gesetzt ist
+            flagImg.style.visibility = 'visible';
+        }
+        nextBtn.disabled = false;
     }
 }
 
@@ -310,7 +307,6 @@ function checkGuess() {
   const flagContainerEl = document.getElementById('flag-container');
   const flagBlackoutEl = document.getElementById('flag-blackout');
   const flagImgEl = document.getElementById('flag');
-
 
   if (!guessInput || !resultEl || !submitBtn || !nextBtn || !winningStreakEl || !window.currentCountry || !flagContainerEl || !flagBlackoutEl || !flagImgEl) {
        console.error("checkGuess: Required elements or currentCountry data missing!");
@@ -348,17 +344,16 @@ function checkGuess() {
     }
   }
 
-  displayCurrentStreak(); // Always update displayed streak
+  displayCurrentStreak();
   if (streakIncreased && (winStreaks[selectedMode] || 0) > 0) {
       winningStreakEl.classList.add('streak-pulse');
-      // Remove pulse class after animation ends
       winningStreakEl.addEventListener('animationend', function handler() {
           winningStreakEl.classList.remove('streak-pulse');
           winningStreakEl.removeEventListener('animationend', handler);
       });
   }
 
-  // Reveal flag if it was blacked out
+  // Flagge wieder anzeigen, falls sie ausgeblendet war
   if (blackoutActive) {
     flagContainerEl.classList.remove('blackout');
     flagBlackoutEl.style.display = 'none';
@@ -367,18 +362,11 @@ function checkGuess() {
     console.log("Revealed flag after guess.");
   }
 
-  // Disable input and submit button
   submitBtn.disabled = true;
   guessInput.disabled = true;
-
-  // Enable next button
   nextBtn.disabled = false;
 
-  // Set auto-next timer
    const autoNextTimeout = setTimeout(() => {
-       // Check if the result message is still the one we just set
-       // This prevents auto-next if the user quickly clicked "Next" manually
-       // or if a new flag was loaded for some reason.
       const currentResultEl = document.getElementById('result');
       if (currentResultEl && currentResultEl.textContent === resultEl.textContent) {
           console.log("Auto-loading next flag after guess.");
@@ -386,27 +374,21 @@ function checkGuess() {
       } else {
           console.log("Auto-next cancelled (result changed or element missing).");
       }
-  }, 2000); // Auto-load next flag after 2 seconds
+  }, 2000);
 
-  // Ensure the manual "Next" button click cancels the auto-next timer
-  // We add a temporary listener that cleans itself up
+  // Temporären Handler für manuellen Klick auf "Next"
   const nextBtnClickHandler = () => {
-      clearTimeout(autoNextTimeout); // Cancel auto-next
+      clearTimeout(autoNextTimeout);
       console.log("Manual 'Next' button clicked, auto-next cancelled.");
-      loadNewFlag(); // Load next flag manually
-      nextBtn.removeEventListener('click', nextBtnClickHandler); // Remove this temporary listener
+      loadNewFlag();
+      nextBtn.removeEventListener('click', nextBtnClickHandler); // Wichtig: Listener entfernen
   };
-  // Remove any previous temporary handlers attached by checkGuess
-   const previousHandler = nextBtn.onclick; // This only gets the *last* assigned handler if using .onclick = ...
-   if (previousHandler && previousHandler._isCheckGuessTemp) {
-       nextBtn.removeEventListener('click', previousHandler);
-   }
-
-  // Add the new temporary handler
+  // Alten temporären Listener entfernen, falls vorhanden (defensiv)
+  if (nextBtn._tempListener) {
+      nextBtn.removeEventListener('click', nextBtn._tempListener);
+  }
   nextBtn.addEventListener('click', nextBtnClickHandler);
-  nextBtnClickHandler._isCheckGuessTemp = true; // Mark it
-
-
+  nextBtn._tempListener = nextBtnClickHandler; // Referenz speichern zum späteren Entfernen
 }
 
 // Wendet die visuellen Effekte an
@@ -419,12 +401,10 @@ function applyEffects() {
       pixelate: document.getElementById('pixelateToggle')?.checked,
       glitch: document.getElementById('glitchToggle')?.checked
   };
-  // Ensure all classes are removed first to apply correct combination
   ctr.classList.remove('grayscale', 'invert', 'pixelate', 'glitch');
-
-  // Add classes based on checked state
   if (effects.grayscale) ctr.classList.add('grayscale');
   if (effects.invert) ctr.classList.add('invert');
   if (effects.pixelate) ctr.classList.add('pixelate');
   if (effects.glitch) ctr.classList.add('glitch');
 }
+// --- END OF FILE ui/gameUI.js ---
